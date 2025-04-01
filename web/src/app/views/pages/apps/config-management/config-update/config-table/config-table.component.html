@@ -1,0 +1,259 @@
+<kt-portlet [ngClass]="{
+   'kt-portlet--body-progress kt-portlet--body-progress-overlay': isLoading
+ }">
+  <div *ngIf="!hideTable">
+    <div
+      *ngIf="isPermitted"
+      class="mt-md-5 mb-n5">
+      <h5
+        class="text-center kt-form__heading-title kt-font-bold"
+        style="color: #48465b"
+      >
+        {{ tableId }}
+      </h5>
+    </div>
+
+    <div *ngIf="isPermitted"
+      class="row mx-2">
+      <div class="col-md-12 kt-form__filtration_less d-flex justify-content">
+        <div class="col-md-12 row d-flex input-group justify-content">
+          <div class="col col-md-4 kt-form__filtration_less input-group-prepend  ">
+            <mat-form-field align="start" class="mat-form-field-fluid">
+              <input class="form-control" matInput type="text" (keyup)="doFilter($event.target.value)"
+                     placeholder="Filter">
+              <mat-hint align="start">
+                <strong>Filter</strong> by Config Data (Key/Value)
+              </mat-hint>
+            </mat-form-field>
+          </div>
+
+          <div class="col col-md-5 kt-form__filtration_less kt-padding-0">
+          </div>
+
+          <div class="col col-md-3 kt-form__filtration_less kt-padding-0" style="
+                display: grid;
+                grid-template-columns: 1fr 1fr 1fr;
+                grid-gap: 5px;
+              ">
+            <button
+              class="my-5"
+              (click)="AddNewRow()"
+              [disabled]="disableButtons"
+              mat-raised-button
+              color="primary"
+              aria-label="Add"
+              type="submit">
+              <mat-icon style="display: inline-block;" *ngIf="disableButtons">
+                lock
+              </mat-icon>
+              <fa-icon [icon]="faPlus" *ngIf="!disableButtons">
+              </fa-icon> Add
+            </button>
+
+            <button
+              class="my-5"
+              (click)="UpdateConfig()"
+              [disabled]="!isUpdateEnabled()"
+              mat-raised-button
+              color="primary"
+              aria-label="Update"
+              type="submit">
+              <mat-icon style="display: inline-block;" *ngIf="!isUpdateEnabled()">
+                lock
+              </mat-icon>
+              <fa-icon [icon]="faWrench" *ngIf="isUpdateEnabled()">
+              </fa-icon> Update
+            </button>
+
+            <button
+              class="my-5"
+              (click)="deleteSelected()"
+              [disabled]="!((selection.hasValue() && isAllSelected() && !inEditingMode) || (enableDelete() && !inEditingMode))"
+              mat-raised-button
+              color="primary"
+              aria-label="Delete"
+              type="submit">
+              <mat-icon style="display: inline-block;" *ngIf="!((selection.hasValue() && isAllSelected() && !inEditingMode) || (enableDelete() && !inEditingMode))">
+                lock
+              </mat-icon>
+              <fa-icon [icon]="faTrash" *ngIf="((selection.hasValue() && isAllSelected() && !inEditingMode) || (enableDelete() && !inEditingMode))">
+              </fa-icon> Delete
+            </button>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      *ngIf="isPermitted"
+      class="row mx-4 mt-6 mb-5">
+      <div class="col-md-12">
+        <form [formGroup]="VOForm" autocomplete="off">
+          <ng-container formArrayName="VORows">
+            <table
+                #table mat-table
+                [dataSource]="data"
+                class="mat-elevation-z0"
+            >
+              <!--Check Box Column-->
+              <ng-container class="col-md-1" matColumnDef="select">
+                <th mat-header-cell *matHeaderCellDef>
+                  <mat-checkbox (change)="$event ? masterToggle() : null"
+                                [checked]="selection.hasValue() && isAllSelected()"
+                                [indeterminate]="selection.hasValue() && !isAllSelected()">
+                  </mat-checkbox>
+                </th>
+                <td mat-cell *matCellDef="let row">
+                  <mat-checkbox (click)="$event.stopPropagation()"
+                                (change)="$event ? selection.toggle(row) : null"
+                                [checked]="selection.isSelected(row)">
+                  </mat-checkbox>
+                </td>
+              </ng-container>
+
+              <!-- Config Key Column -->
+              <ng-container class="col-md-4" matColumnDef="configKey">
+                <th mat-header-cell  *matHeaderCellDef> Config Key</th>
+                <td
+                  mat-cell
+                  *matCellDef="let element; let i = index"
+                  [formGroup]="element">
+                  <mat-form-field class="mt-2"
+                                  [appearance]="VOForm.get('VORows').value[i].isEditable ? 'none' : 'legacy'">
+                    <input
+                      matInput type="text"
+                      formControlName="configKey"
+                      oninput="this.value = this.value.toUpperCase()"
+                      [readonly]="VOForm.get('VORows').value[i].isEditable">
+                  </mat-form-field>
+                  <mat-error *ngIf="element.controls['configKey'].hasError('required')">
+                    Key is <strong>required</strong>
+                  </mat-error>
+                  <mat-error *ngIf="element.controls['configKey'].hasError('pattern')">
+                    No leading/trailing <strong>underscore</strong> allowed<br>
+                    Only special character <strong>underscore</strong> is allowed<br>
+                    <strong>Space</strong> not allowed
+                  </mat-error>
+                  <mat-error
+                    *ngIf="element.controls['configKey'].hasError('keyRepeat')">
+                    Key can't be <strong>duplicated</strong>
+                  </mat-error>
+                </td>
+              </ng-container>
+
+              <!-- Config Value Column -->
+              <ng-container class="col-md-4" matColumnDef="configValue">
+                <th mat-header-cell *matHeaderCellDef> Config Value</th>
+                <td mat-cell *matCellDef="let element; let i = index" [formGroup]="element">
+                  <mat-form-field class="mt-3"
+                                  [appearance]="VOForm.get('VORows').value[i].isEditable? 'none' : 'legacy'">
+                <textarea matInput type="text" formControlName="configValue"
+                          [readonly]="VOForm.get('VORows').value[i].isEditable"></textarea>
+                  </mat-form-field>
+                  <mat-error *ngIf="element.controls['configValue'].hasError('required')">
+                    Value is <strong>required</strong>
+                  </mat-error>
+                </td>
+              </ng-container>
+
+              <!-- Config Edit-Delete-Save Column -->
+              <ng-container class="col-md-2" matColumnDef="action">
+                <th mat-header-cell class="text-center" *matHeaderCellDef> Action</th>
+                <td mat-cell class="text-center" *matCellDef="let element; let i = index" [formGroup]="element">
+                  <button mat-icon-button class="material-icons app-toolbar-menu save-button"
+                          matTooltip="Save Changes" (click)="SaveVO(VOForm,i)"
+                          *ngIf="!VOForm.get('VORows').value[i].isEditable &&
+                            VOForm.get('VORows').at(i).get('configKey').valid &&
+                            VOForm.get('VORows').at(i).get('configValue').valid"
+                          color="primary">
+                    <fa-icon [icon]="faSave"></fa-icon>
+                  </button>
+
+                  <button mat-icon-button class="material-icons app-toolbar-menu cancel-button"
+                          matTooltip="Cancel Changes" color="warn"
+                          (click)="CancelSVO(VOForm,i)"
+                          *ngIf="!VOForm.get('VORows').value[i].isEditable">
+                    <fa-icon [icon]="faBan"></fa-icon>
+                  </button>
+
+                  <button mat-icon-button class="material-icons app-toolbar-menu save-button"
+                          *ngIf="VOForm.get('VORows').value[i].isEditable"
+                          matTooltip="Edit" color="primary" (click)="EditSVO(VOForm,i)">
+                    <fa-icon [icon]="faPenSquare"></fa-icon>
+                  </button>
+
+                  <button mat-icon-button class="material-icons app-toolbar-menu delete-button"
+                          *ngIf="VOForm.get('VORows').value[i].isEditable"
+                          matTooltip="Delete" color="warn" (click)="DeleteSVO(VOForm,i)">
+                    <fa-icon [icon]="faTrashAlt"></fa-icon>
+                  </button>
+
+                  <button
+                    mat-icon-button
+                    class="material-icons app-toolbar-menu delete-button"
+                    *ngIf="VOForm.get('VORows').value[i].isEditable &&
+                          (!backupConfig.hasOwnProperty(VOForm.get('VORows').at(i).get('configKey').value) ||
+                           backupConfig[VOForm.get('VORows').at(i).get('configKey').value] !== VOForm.get('VORows').at(i).get('configValue').value)"
+                        matTooltip="Undo" color="primary" (click)="RollBack(VOForm,i)">
+                    <fa-icon [icon]="faUndo"></fa-icon>
+                  </button>
+                </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              <tr
+                mat-row *matRowDef="let row; columns: displayedColumns;"
+              ></tr>
+
+              <!-- Row shown when there is no matching data. -->
+            </table>
+          </ng-container>
+
+        </form>
+      </div>
+    </div>
+
+    <div
+      *ngIf="!isPermitted"
+      class="mt-md-5 mb-5">
+      <h5
+        class="text-center"
+        style="color: #48465b"
+      >
+        {{ tableId }}
+      </h5>
+    </div>
+
+    <div
+      *ngIf="!isPermitted"
+      class="row mx-4 mt-6 mb-5"
+    >
+      <div class="col-md-12">
+        <table mat-table [dataSource]="data" class="mat-elevation-z0">
+          <!-- Position Column -->
+          <ng-container class="col-md-2" matColumnDef="select1">
+            <th mat-header-cell *matHeaderCellDef> No. </th>
+            <td mat-cell *matCellDef="let element; let i = index"> {{ i + 1 }} </td>
+          </ng-container>
+
+          <!-- Name Column -->
+          <ng-container class="col-md-5" matColumnDef="configKey1">
+            <th mat-header-cell *matHeaderCellDef> Config Key </th>
+            <td mat-cell *matCellDef="let element"> {{element.configKey}} </td>
+          </ng-container>
+
+          <!-- Weight Column -->
+          <ng-container class="col-md-5" matColumnDef="configValue1">
+            <th mat-header-cell *matHeaderCellDef> Config Value </th>
+            <td mat-cell *matCellDef="let element"> {{element.configValue}} </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumnsNotPermitted"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumnsNotPermitted;"></tr>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</kt-portlet>

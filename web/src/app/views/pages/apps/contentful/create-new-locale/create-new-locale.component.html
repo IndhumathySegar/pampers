@@ -1,0 +1,115 @@
+<kt-portlet>
+  <kt-portlet-header [class]="'kt-portlet__head--lg'" style="padding: 0">
+    <ng-container ktPortletTitle>
+      <h5 class="kt-portlet__head-title">
+        <span>Create New Locale</span>
+      </h5>
+    </ng-container>
+  </kt-portlet-header>
+  <kt-portlet-body>
+    <div class="kt-form kt-margin-b-30">
+      <div class="kt-form__filtration">
+        <div class="row">
+          <div class="col-md-4 kt-margin-bottom-10-mobile">
+            <form class="login" name="form" [formGroup]="localeForm">
+              <div class="kt-form__control">
+                <h6>Region</h6>
+                <mat-form-field class="col-md-12" style="margin-left: -10px;">
+                  <mat-select formControlName="region" required="true">
+                    <input class="border-0 border-style"
+                      (keydown)="regionFilterOptions($event.target.value); $event.stopPropagation();"
+                      (keydown)="handleSpaceKey($event)" placeholder="Search ...">                  
+                    <mat-option *ngFor="let item of filteredRegionList" [value]="item.regionCode"
+                      (click)="singleRegionSelectToggle(); $event.stopPropagation();">
+                      {{ item.region }} ({{ item.regionCode }})
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+
+                <h6>Market</h6>
+                <mat-form-field class="col-md-12" style="margin-left: -10px;">
+                  <mat-select formControlName="markets" required="true" *ngIf="isCountry==='TRUE'">
+                    <input class="border-0 border-style"
+                      (keydown)="localeFilter($event.target.value); $event.stopPropagation();"
+                      (keydown)="handleSpaceKey($event)" placeholder="Search ...">                  
+                    <mat-option *ngFor="let item of filterIsoCode" [value]="item.code"
+                     >
+                      {{ item.name }} ({{ item.code }})
+                    </mat-option>
+                  </mat-select>
+
+                  <mat-select formControlName="markets" required="true" *ngIf="isCountry!=='TRUE'">
+                    <input class="border-0 border-style"
+                      (keydown)="marketFilterOptions($event.target.value); $event.stopPropagation();"
+                      (keydown)="handleSpaceKey($event)" placeholder="Search ...">                  
+                    <mat-option *ngFor="let item of filteredMarketList" [value]="item.code"
+                     >
+                      {{ item.name }} ({{ item.code }})
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+
+                <h6>Language Code</h6>
+                <div class="row">
+                  <div  class="col-md-4">
+                    <mat-form-field style="width: 100%;">
+                      <input matInput formControlName="code" placeholder = "Enter Language" />
+                      <mat-hint><strong>Examples :</strong> de, en</mat-hint>
+                      <mat-error class="text-danger" *ngIf="
+                          localeForm.get('code').value &&
+                          localeForm.get('code').invalid
+                        ">
+                        Locale code is invalid!
+                      </mat-error>
+                    </mat-form-field>
+                  </div>                 
+                  <div  class="col-md-1" style="padding-top: 20px;"> - </div>
+                  <div  class="col-md-7" >
+                    <mat-form-field style="width: 100%; margin-left: -22px;" >
+  
+                      <mat-select formControlName="isoCode" placeholder = "Select Country code">
+                        <input class="border-0 border-style"
+                          (keydown)="localeFilter($event.target.value); $event.stopPropagation();"
+                          (keydown)="handleSpaceKey($event)" placeholder="Search ...">
+    
+                        <mat-option *ngFor="let item of filterIsoCode" [value]="item.code"
+                          (click)="$event.stopPropagation();">
+                          {{ item.code }} ({{ item.name }})
+                        </mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
+                 
+  
+                </div>
+               <br>
+                <h6>Language</h6>
+                <mat-form-field class="example-full-width">
+                  <input matInput formControlName="language" />
+                  <mat-error class="text-danger" *ngIf="
+                                    localeForm.get('language').value &&
+                                    localeForm.get('language').invalid
+                                  ">
+                    Language is invalid!
+                  </mat-error>
+                  <mat-hint>Language should have first letter capital</mat-hint>
+                </mat-form-field>
+                <div class="row pt-5"></div>
+                <div>
+                  <mat-hint style="margin-left: 10px; font-size: 14px; color: red" *ngIf="loading">Loading...</mat-hint>
+                  <br *ngIf="loading" />
+                  <button mat-raised-button color="primary" [ngStyle]="{
+                      cursor: localeForm.valid ? 'pointer' : 'not-allowed'
+                    }" type="submit" [disabled]="loading || !localeForm.valid" (click) = "createLocale()">
+                    Create Locale
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </kt-portlet-body>
+</kt-portlet>

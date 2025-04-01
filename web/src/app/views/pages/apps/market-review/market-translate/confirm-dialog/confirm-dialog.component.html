@@ -1,0 +1,50 @@
+<div class="kt-portlet" [ngClass]="{ 'kt-portlet--body-progress kt-portlet--body-progress-overlay' : isLoading }">
+    <div class="kt-portlet__head kt-portlet__head__custom">
+        <div class="kt-portlet__head-label">
+            <h3 class="kt-portlet__head-title">Confirm</h3>
+        </div>
+    </div>
+
+    <div class="kt-form">
+        <div class="kt-portlet__body">
+            <div class="kt-portlet__body-progress">
+                <mat-spinner [diameter]="40"></mat-spinner>
+            </div>
+
+            <div 
+                class="mat-table__message" 
+                style="display: flex; margin: 1.5rem 0;" >
+             
+               Are you sure you want to update
+            </div>
+        </div>
+
+        <div class="kt-portlet__foot kt-portlet__no-border kt-portlet__foot--fit">
+            <div class="kt-form__actions kt-form__actions--solid">
+                <div class="row text-right">
+                    <div class="col-lg-12">
+                        <button 
+                            type="button" 
+                            mat-raised-button 
+                            (click)="onCancel(false)"
+                            matTooltip="Close" 
+                            tabindex="5">
+                            Cancel
+                        </button>&nbsp;
+                        <button 
+                            type="button" 
+                            mat-raised-button 
+                            color="primary"
+                            (click)="updateStatus()"
+                            [disabled]="isLoading"
+                            matTooltip="Update Content" 
+                            tabindex="5">
+                            Update
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+      </div>
+</div>

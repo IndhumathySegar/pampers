@@ -1,0 +1,136 @@
+<kt-portlet>
+  <kt-portlet-header [class]="'kt-portlet__head--lg'" style="padding: 0">
+    <ng-container ktPortletTitle>
+      <h5 class="kt-portlet__head-title">
+        <span>Content Migration from {{environments[0]}} to  {{environments[1]}} in Contentful</span>
+      </h5>
+    </ng-container>
+  </kt-portlet-header>
+  <kt-portlet-body>
+    <div class="kt-form kt-margin-b-30">
+      <div class="kt-form__filtration">
+        <div class="row">
+          <div class="col-md-4 kt-margin-bottom-10-mobile">
+            <form class="login" name="form" [formGroup]="migrationForm">
+              <div class="kt-form__control">
+                <mat-form-field class="mat-form-field-fluid mb-3">
+                  <mat-label>Region</mat-label>
+                  <mat-select formControlName="region">
+                    <input class="border-0 border-style"
+                      (keydown)="regionFilterOptions($event.target.value); $event.stopPropagation();"
+                      (keydown)="handleSpaceKey($event)" placeholder="Search ...">                  
+                    <mat-option *ngFor="let item of filteredRegionList" [value]="item.regionCode"
+                      (click)="singleRegionSelectToggle(); $event.stopPropagation();">
+                      {{ item.region }} ({{ item.regionCode }})
+                    </mat-option>
+                  </mat-select>
+                  <mat-hint *ngIf="isModelLoading">Loading...</mat-hint>
+                </mat-form-field>
+
+                <mat-form-field class="mat-form-field-fluid mb-3">
+                  <mat-label>Market</mat-label>
+                  <mat-select formControlName="markets" >
+                    <input class="border-0 border-style"
+                      (keydown)="marketFilterOptions($event.target.value); $event.stopPropagation();"
+                      (keydown)="handleSpaceKey($event)" placeholder="Search ...">                  
+                    <mat-option *ngFor="let item of filteredMarketList" [value]="item.code" (click)="singleMarketSelectToggle(); $event.stopPropagation();"
+                     >
+                      {{ item.name }} ({{ item.code }})
+                    </mat-option>
+                  </mat-select>
+                  <mat-hint *ngIf="isModelLoading">Loading...</mat-hint>
+                </mat-form-field>    
+                
+                <mat-form-field class="mat-form-field-fluid mb-3">
+                  <mat-label>Locale code</mat-label>
+                  <mat-select formControlName="localesToMigrate" multiple [disabled]="isModelLoading">
+                    <input class="border-0 border-style" (input)="localeFilterOptions($event.target.value); $event.stopPropagation();" 
+                    (keydown)="handleSpaceKey($event)" placeholder="Search ...">
+                    <mat-checkbox [checked]="isLocaleChecked" (click)="togglelocalesSelectAll(filteredLocaleList, 'localesToMigrate'); $event.stopPropagation();" style = "margin-left: 16px; color: rgba(0, 0, 0, 0.87);">Select All</mat-checkbox>
+                    <mat-option *ngFor="let item of filteredLocaleList" [value]="item.code" (click)="singleLocaleSelectToggle(); $event.stopPropagation();">
+                      {{ item.name }} ({{ item.code }})
+                    </mat-option>
+                  </mat-select>
+                  <mat-hint *ngIf="isModelLoading">Loading...</mat-hint>
+                </mat-form-field>          
+                              
+                <h6>
+                  Migration Filters 
+                  <span style="cursor: pointer;" matTooltip="Select the tags which are to be included or excluded from the migration."><strong>ⓘ</strong></span>
+                </h6>
+                <mat-form-field class="mat-form-field-fluid mb-3">
+                  <mat-label>Content Models</mat-label>
+                  <mat-select formControlName="contentModels" multiple [disabled]="isModelLoading">
+                    <input class="border-0 border-style" (input)="modelFilterOptions($event.target.value); $event.stopPropagation();" 
+                    (keydown)="handleSpaceKey($event)" placeholder="Search ...">
+                    <mat-checkbox [checked]="isModelChecked" (click)="toggleModelSelectAll(filteredModelList, 'contentModels'); $event.stopPropagation();" style = "margin-left: 16px; color: rgba(0, 0, 0, 0.87);">Select All</mat-checkbox>
+                    <mat-option *ngFor="let item of filteredModelList" [value]="item.modelId" (click)="singleModelSelectToggle(); $event.stopPropagation();">
+                      {{ item.modelName }}
+                    </mat-option>
+                  </mat-select>
+
+                  <mat-hint *ngIf="isModelLoading">Loading...</mat-hint>
+                </mat-form-field>              
+                                                 
+                <mat-form-field class="mat-form-field-fluid mb-3">
+                  <mat-label>Include Tags</mat-label>
+                  <mat-select formControlName="includeTags" multiple [disabled]="isTagsLoading">
+                    <input class="border-0 border-style" (input)="tagFilterOptions($event.target.value); $event.stopPropagation();" 
+                    (keydown)="handleSpaceKey($event)" placeholder="Search ...">
+                    <mat-checkbox [checked]="isTagChecked" (click)="toggleTagSelectAll(filteredTagList, 'includeTags'); $event.stopPropagation();" style = "margin-left: 16px; color: rgba(0, 0, 0, 0.87);">Select All</mat-checkbox>
+                    <mat-option *ngFor="let item of filteredTagList" [value]="item.sys.id" (click)="singleTagSelectToggle(); $event.stopPropagation();">
+                      {{ item.name }}
+                    </mat-option>
+                  </mat-select>
+                  <mat-hint *ngIf="isTagsLoading">Loading...</mat-hint>
+                </mat-form-field>
+
+                <mat-form-field class="mat-form-field-fluid mb-3">
+                  <mat-label>Exclude Tags</mat-label>
+                  <mat-select formControlName="excludeTags" multiple [disabled]="isTagsLoading">
+                    <input class="border-0 border-style" (input)="extagFilterOptions($event.target.value); $event.stopPropagation();" 
+                    (keydown)="handleSpaceKey($event)" placeholder="Search ...">
+                    <mat-checkbox [checked]="isexTagChecked" (click)="toggleexTagSelectAll(filteredexTagList, 'excludeTags'); $event.stopPropagation();" style = "margin-left: 16px; color: rgba(0, 0, 0, 0.87);">Select All</mat-checkbox>
+                    <mat-option *ngFor="let item of filteredexTagList" [value]="item.sys.id" (click)="singleexTagSelectToggle(); $event.stopPropagation();">
+                      {{ item.name }}
+                    </mat-option>
+                  </mat-select>
+                  <mat-hint *ngIf="isTagsLoading">Loading...</mat-hint>
+                </mat-form-field>
+
+                
+                <span>
+                  <mat-form-field class="mat-form-field-fluid mb-3">
+                    <mat-label>Migration to  from Last Published Date</mat-label>
+                    <input matInput [matDatepicker]="migrateFromDatePicker" formControlName="migrateFromDate" readonly (click)="migrateFromDatePicker.open()" >
+                    <mat-datepicker-toggle
+                    matSuffix
+                      [for]="migrateFromDatePicker"
+                      [disabled]="false"
+                    ></mat-datepicker-toggle>
+                    <mat-datepicker #migrateFromDatePicker [disabled]="false"></mat-datepicker>
+                  </mat-form-field>
+                </span>
+              
+                <span>                     
+                  <mat-checkbox formControlName="isRollBack"  style = "color: rgba(0, 0, 0, 0.87);">Backup (Take a backup of the job to rollback in case of failure)</mat-checkbox>                  
+                </span>
+
+                <div style="margin-top: 20px;">
+                  <button mat-raised-button color="primary" type = "button" (click) = "migration()"
+                    [ngStyle]="{ 'cursor': migrationForm.valid ? 'pointer' : 'not-allowed' }" 
+                    [disabled]="!migrationForm.valid || !safeGet(permission, 'contentManagement.contentManagement:migration.contentManagement:migration:createMigration')">
+                    <mat-icon style="display: inline-block;"
+                      *ngIf="!safeGet(permission, 'contentManagement.contentManagement:migration.contentManagement:migration:createMigration')">
+                      lock</mat-icon>
+                    Migrate Content
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </kt-portlet-body>
+</kt-portlet>

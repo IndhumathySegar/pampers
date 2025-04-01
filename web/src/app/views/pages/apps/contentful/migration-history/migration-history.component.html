@@ -1,0 +1,228 @@
+<kt-portlet>
+  <kt-portlet-header [class]="'kt-portlet__head--lg'" style="padding: 0">
+    <ng-container ktPortletTitle>
+      <h5 class="kt-portlet__head-title">
+        <span>Migration History</span>
+      </h5>
+    </ng-container>
+  </kt-portlet-header>
+  <kt-portlet-body>
+    <div class="mat-table__wrapper">
+      <table mat-table [dataSource]="dataSource" multiTemplateDataRows class="mat-elevation-z8">
+        <ng-container matColumnDef="migrationId">
+          <th mat-header-cell *matHeaderCellDef>Migration Job Id</th>
+          <td mat-cell *matCellDef="let element">{{ element.migrationId || '-' }}</td>
+        </ng-container>
+        <ng-container matColumnDef="createdBy">
+          <th mat-header-cell *matHeaderCellDef>Initiated By</th>
+          <td mat-cell *matCellDef="let element">{{ element.createdBy || '-' }}</td>
+        </ng-container>
+        <ng-container matColumnDef="region">
+          <th mat-header-cell *matHeaderCellDef>Region</th>
+          <td mat-cell *matCellDef="let element">{{ element?.region || '-' }}</td>
+        </ng-container>
+        <ng-container matColumnDef="market">
+          <th mat-header-cell *matHeaderCellDef>Market</th>
+          <td mat-cell *matCellDef="let element">{{ element?.market || '-' }}</td>
+        </ng-container>
+        <ng-container matColumnDef="locale">
+          <th mat-header-cell *matHeaderCellDef>Locale</th>
+          <td mat-cell *matCellDef="let element">{{ element?.localesToMigrate || '-' }}</td>
+        </ng-container>
+        <ng-container matColumnDef="from">
+          <th mat-header-cell *matHeaderCellDef>From</th>
+          <td mat-cell *matCellDef="let element">{{ element.from || '-' }}</td>
+        </ng-container>
+        <ng-container matColumnDef="to">
+          <th mat-header-cell *matHeaderCellDef>To</th>
+          <td mat-cell *matCellDef="let element">{{ element.to }}</td>
+        </ng-container>
+        <ng-container matColumnDef="errorLogs">
+          <th mat-header-cell *matHeaderCellDef>Error Logs</th>
+          <td mat-cell *matCellDef="let element">
+            <mat-icon class="download" [ngStyle]="{ 'cursor': element.status === 'failed' ? 'pointer' : 'not-allowed' }"
+              (click)="openDownloadDialog(element, 'contentfulErrorLogs')">cloud_download</mat-icon>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="error">
+          <th mat-header-cell *matHeaderCellDef>Error</th>
+          <td mat-cell *matCellDef="let element">
+            <a mat-button color="primary" 
+            *ngIf="element.error"
+            (click)="toggleErrorExpand(element)"
+            matTooltip="Click to view error details">
+            View Errors
+         </a>   
+         <span *ngIf="!element.error">-</span>
+       </td>
+     </ng-container>
+
+      <ng-container matColumnDef="createdAt">
+        <th mat-header-cell *matHeaderCellDef>Initiated At</th>
+        <td mat-cell *matCellDef="let element">{{ element.createdAt }}</td>
+      </ng-container>
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef>Status</th>
+        <td mat-cell *matCellDef="let element">
+          <label #statusEle style="white-space: unset" class="text-white badge badge-pill"
+            [ngClass]="element.status === 'success' ? 'badge-success' : element.status === 'failed' ? 'badge-danger' : element.status === 'reverted' ? 'badge-secondary' : 'badge-warning'" *ngIf = "element.rollBackStatus !== 'success'">
+            {{ element.status }}
+          </label>
+          <label #statusEle style="white-space: unset; background-color: grey;" class="text-white badge badge-pill"
+          [ngClass]="'badge-secondary'" *ngIf = "element.rollBackStatus === 'success'">
+          reverted
+        </label>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="Filters">
+        <th mat-header-cell *matHeaderCellDef>Filters</th>
+        <span>
+        <td mat-cell *matCellDef="let element" >
+          <a mat-button color="primary" 
+          (click)="toggleFilterExpand(element)">View Filters</a>
+        </td>
+      </span>          
+      </ng-container>
+      <ng-container matColumnDef="RollBack">
+        <th mat-header-cell *matHeaderCellDef>Rollback</th>
+        <td mat-cell *matCellDef="let element"> 
+          <i *ngIf="element.isRollBack && canShowRollbackActiveIcon(element)" 
+          class="fa fa-undo" 
+          style="font-size:25px; color: green; cursor: pointer" 
+          (click)="confirmPopup(element)">
+       </i>
+       
+       <i *ngIf="element.isRollBack &&  canShowRollbackDisabledIcon(element)" 
+          class="fa fa-undo" 
+          style="font-size:25px; color: grey; cursor: not-allowed;">
+       </i>
+        </td>
+      </ng-container>
+
+        <!-- Expanded Content Column to view error data in table manner -->
+        <ng-container matColumnDef="expandedErrorDetail">
+          <td mat-cell *matCellDef="let element" [attr.colspan]="displayedColumns?.length">
+            <div class="example-element-error" [@detailExpand]="element == expandedErrorElement ? 'expanded' : 'collapsed'">
+              <div *ngIf="element.errorDetails?.length > 0">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Error</th>
+                      <th>Message</th>
+                      <th>Details</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let error of element.errorDetails">
+                      <td>{{ error.error || '-' }}</td>
+                      <td>{{ error.message || '-' }}</td>
+                      <td>{{ error.details || '-' }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <p class="error-message" *ngIf="!element.errorDetails || element.errorDetails?.length === 0">{{element.error || 'error details not available'}}</p>
+            </div>
+          </td>
+        </ng-container>
+        
+              <!-- Expanded Content Column to view filters data in table manner -->
+        <ng-container matColumnDef="expandedDetail">
+          <td mat-cell *matCellDef="let element" [attr.colspan]="displayedColumns?.length">
+            <div class="example-element-detail" [@detailExpand]="element == expandedFilterElement ? 'expanded' : 'collapsed'">
+              <div class="example-element-diagram rounded-corner">
+                <div  *ngIf="element.lastMigration; else elseBlock"> 
+                  <h6><strong>Migration Filters</strong></h6>
+                  <table>
+                    <tr>
+                      <td class="td"> Tags Included </td>
+                      <td class="td">
+                        <label #statusEle style="white-space: unset" class="text-white badge badge-pill" [ngClass]="element.includedTags ? 'badge-success' : 'badge-warning' " *ngIf="!element.includedTags" >
+                          {{"No filter"}}  
+                        </label>                  
+                        <span class="mr-1" *ngFor="let tags of element.includedTags?.split(',')">
+                          <label #statusEle style="white-space: unset" class="text-white badge badge-pill" [ngClass]="element.includedTags ? 'badge-success' : 'badge-warning' ">
+                            {{tags || "No filter"}}  
+                          </label>                  
+                        </span>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="td"> Tags Excluded </td>
+                      <td class="td">
+                        <label #statusEle style="white-space: unset" class="text-white badge badge-pill" [ngClass]="element.excludedTags ? 'badge-success' : 'badge-warning'" *ngIf="!element.excludedTags">
+                          {{"No filter"}}  
+                        </label>  
+                        <span class="mr-1" *ngFor="let tags of element.excludedTags?.split(',')">
+                          <label #statusEle style="white-space: unset" class="text-white badge badge-pill" [ngClass]="element.excludedTags ? 'badge-success' : 'badge-warning'">
+                            {{tags || "No filter"}}  
+                          </label>                  
+                        </span>
+                      </td>
+                    </tr>
+                    <tr>
+                      <tr>
+                        <td class="td"> Content Models </td>
+                        <td class="td">
+                          <label #statusEle style="white-space: unset" class="text-white badge badge-pill" [ngClass]="element.contentModels?.length>0 ? 'badge-success' : 'badge-warning'" *ngIf="element.contentModels?.length===0">
+                            No filter  
+                          </label>
+                          <span class="mr-1" *ngFor="let models of element.contentModels">
+                            <label #statusEle style="white-space: unset" class="text-white badge badge-pill" [ngClass]="element.contentModels?.length>0 ? 'badge-success' : 'badge-warning'">
+                              {{models || "No filter"}}  
+                            </label>                  
+                          </span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="td"> Locales To migrate </td>
+                        <td class="td">
+                          <label #statusEle style="white-space: unset" class="text-white badge badge-pill" [ngClass]="element.localesToMigrate?.length>0 ? 'badge-success' : 'badge-warning'" *ngIf="element.localesToMigrate?.length==0">
+                            {{"No filter"}}  
+                          </label>  
+                          <span class="mr-1" *ngFor="let locales of element.localesToMigrate">
+                            <label #statusEle style="white-space: unset" class="text-white badge badge-pill" [ngClass]="element.localesToMigrate?.length>0 ? 'badge-success' : 'badge-warning'">
+                              {{locales || "No filter"}}  
+                            </label>                  
+                          </span>
+                        </td>
+                      </tr>
+                      <tr>
+                      <td class="td"> Migration Date </td>
+                      <td class="td">
+                        <label #statusEle style="white-space: unset" class="text-white badge badge-pill" [ngClass]="element.lastMigration ? 'badge-success' : 'badge-warning'">
+                          {{ element.lastMigration || "-" }} 
+                        </label>
+                      </td>
+                    </tr>
+                  </table>
+                </div>
+                <ng-template #elseBlock>
+                  <label #statusEle style="white-space: unset" class="text-white badge badge-pill" [ngClass]="'badge-warning'">
+                    No Filters
+                  </label>           
+                </ng-template>   
+              </div>          
+            </div>
+          </td>
+        </ng-container>
+
+                
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let element; columns: displayedColumns;"
+            class="example-element-row"
+            [class.example-expanded-row]="expandedElement === element">
+        </tr>
+        <tr mat-row *matRowDef="let row; columns: ['expandedErrorDetail']" class="example-detail-row"></tr>
+        <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="example-detail-row"></tr>
+
+      </table>
+      <!-- Message for empty data  -->
+      <div class="mat-table__message" [hidden]="!noData">No records found</div>
+      <mat-paginator #paginator [hidden]="isLoading" [hidden]="noData" [hidePageSize]="true" [length]="totalCount"
+        [pageSizeOptions]="[50]" [showFirstLastButtons]="false" (page)="onPageChange($event)">
+      </mat-paginator>
+    </div>
+  </kt-portlet-body>
+</kt-portlet>

@@ -1,0 +1,72 @@
+table {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  min-width: 500px;
+  text-align: center;
+}
+
+.h4 {
+  width: 100%;
+}
+
+.mat-paginator-range-label {
+  display: none;
+}
+
+.mat-form-field {
+  font-size: 14px;
+  width: 100%;
+}
+
+:host ::ng-deep .mat-sort-header-container {
+  display: flex;
+  justify-content: center;
+}
+
+.mat-header-cell {
+  text-align: center !important;
+}
+
+
+/* Border */
+.mat-form-field-appearance-outline .mat-form-field-outline {
+  color: rgb(255, 255, 255);
+  /* background-color: white; */
+}
+/* Font color */
+input.mat-input-element {
+  color: rgb(0, 0, 0);
+}
+
+.mat-column-position {
+  width: 10%;
+  padding-right: 30px;
+}
+
+.mat-column-configKey {
+  word-wrap: break-word;
+  max-width: 200px;
+  padding-right: 30px;
+}
+
+.mat-column-priorValue {
+  word-wrap: break-word;
+  max-width: 200px;
+  padding-right: 30px;
+  white-space: pre-line;
+}
+
+.mat-column-configValue {
+  word-wrap: break-word;
+  max-width: 200px;
+  padding-right: 30px;
+  white-space: pre-line;
+}
+//
+//.mat-footer-row,
+//.mat-header-row,
+//.mat-row {
+//  display: inline-flex;
+//  min-width: 100%;
+//}

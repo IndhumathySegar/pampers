@@ -1,0 +1,42 @@
+<div
+  class="kt-header__brand kt-grid__item"
+  [ngClass]="htmlClassService.getClasses('brand', true)"
+  id="kt_header_brand"
+>
+  <div class="kt-header__brand-logo">
+    <a href="javascript:;" routerLink="/">
+      <img
+        alt="logo"
+        [attr.src]="headerLogo"
+        class="kt-header__brand-logo-default"
+      />
+      <img
+        alt="logo"
+        [attr.src]="headerStickyLogo"
+        class="kt-header__brand-logo-sticky"
+      />
+    </a>
+  </div>
+
+  <div class="kt-header__brand-nav">
+    <div ngbDropdown class="dropdown">
+      <span style="padding: 0px 5px"></span>
+
+      <ng-container *ngFor="let menuItem of menuList">
+        <ng-container *ngIf="menuItem.show">
+          <button
+            (click)="onMenuSelection(menuItem.id)"
+            [ngClass]="{ 'active-menu': showSubMenuObj ? showSubMenuObj.menuId === menuItem.id : 1 === menuItem.id}"
+            data-test="menu-code-generator"
+            class="btn dropdown-toggle menu-item"
+            id="ddlDashboard"
+            ngbDropdownToggle
+            type="button"
+          >
+            {{ menuItem.label }}
+          </button>
+        </ng-container>
+      </ng-container>
+    </div>
+  </div>
+</div>

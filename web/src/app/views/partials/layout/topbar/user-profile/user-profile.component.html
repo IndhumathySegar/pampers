@@ -1,0 +1,95 @@
+<div ngbDropdown placement="bottom-right" *ngIf="user$ | async as _user"
+	class="kt-header__topbar-item kt-header__topbar-item--user">
+	<div ngbDropdownToggle class="kt-header__topbar-wrapper">
+		<span class="kt-header__topbar-welcome" *ngIf="greeting">Hi,</span>
+		<span class="kt-header__topbar-username" *ngIf="greeting">{{_user.firstName}}</span>
+		<span *ngIf="badge" class="kt-header__topbar-icon"><b>{{_user.firstName}}</b></span>
+		<!-- <img *ngIf="avatar" alt="Pic" [attr.src]="_user.pic"> -->
+		<img alt="Pic" src="assets/media/users/default.jpg" />
+	</div>
+	<div ngbDropdownMenu
+		class="dropdown-menu dropdown-menu-fit dropdown-menu-right dropdown-menu-anim dropdown-menu-top-unround dropdown-menu-xl">
+		<!--begin: Head -->
+		<div class="kt-user-card kt-user-card--skin-dark kt-notification-item-padding-x"
+			style="background-image: url(assets/media/misc/bg-1.jpg)">
+			<div class="kt-user-card__avatar">
+				<img alt="Pic" src="assets/media/users/default.jpg" />
+				<!-- <img alt="Pic" [attr.src]="_user.pic"/> -->
+				<span [hidden]="true" class="kt-badge kt-badge--lg kt-badge--rounded kt-badge--bold kt-font-success">
+					{{_user.firstName}}
+				</span>
+			</div>
+			<div class="kt-user-card__name">
+				{{_user.firstName}}
+			</div>
+		</div>
+		<!--end: Head -->
+
+		<!--begin: Navigation -->
+		<div class="kt-notification">
+
+			<!-- <ng-container *ngIf="showUserManagement">
+				<a ngbDropdownToggle (click)="gotoUserModule()" class="kt-notification__item">
+					<div class="kt-notification__item-icon">
+						<em class="flaticon2-user kt-font-warning"></em>
+					</div>
+					<div class="kt-notification__item-details">
+						<div class="kt-notification__item-title kt-font-bold">
+							User Management
+						</div>
+						<div class="kt-notification__item-time">
+							Manage Users & Roles
+						</div>
+					</div>
+				</a>
+			</ng-container> -->
+
+			
+
+	
+
+			<div class="kt-notification__custom">
+				<button style="display: flex;" class="btn btn-outline-brand btn-upper btn-sm btn-bold" type="button"
+					(click)="logout()" [disabled]="isRequesting" matTooltip="Logout" tabindex="6">
+					<mat-icon *ngIf="isRequesting">
+						<mat-spinner color="primary" diameter="20"></mat-spinner>
+					</mat-icon>
+					Sign Out
+				</button>
+			</div>
+		</div>
+		<!--end: Navigation -->
+
+		<!--begin: Navigation(alternative) -->
+		<ul class="kt-nav kt-margin-b-10 kt-hidden">
+			<li class="kt-nav__item">
+				<a ngbDropdownItem routerLink="profile" class="kt-nav__link">
+					<span class="kt-nav__link-icon"><em class="flaticon2-calendar-3"></em></span>
+					<span class="kt-nav__link-text">My Profile</span>
+				</a>
+			</li>
+			<li class="kt-nav__item">
+				<a ngbDropdownItem routerLink="profile" class="kt-nav__link">
+					<span class="kt-nav__link-icon"><em class="flaticon2-browser-2"></em></span>
+					<span class="kt-nav__link-text">My Tasks</span>
+				</a>
+			</li>
+			<li class="kt-nav__item">
+				<a ngbDropdownItem routerLink="profile" class="kt-nav__link">
+					<span class="kt-nav__link-icon"><em class="flaticon2-mail"></em></span>
+					<span class="kt-nav__link-text">Messages</span>
+				</a>
+			</li>
+			<li class="kt-nav__item">
+				<a ngbDropdownItem routerLink="profile" class="kt-nav__link">
+					<span class="kt-nav__link-icon"><em class="flaticon2-gear"></em></span>
+					<span class="kt-nav__link-text">Settings</span>
+				</a>
+			</li>
+			<li class="kt-nav__item kt-nav__item--custom kt-margin-t-15">
+				<a (click)="logout()" class="btn btn-label-brand btn-sm btn-bold">Sign Out</a>
+			</li>
+		</ul>
+		<!--end: Navigation(alternative) -->
+	</div>
+</div>

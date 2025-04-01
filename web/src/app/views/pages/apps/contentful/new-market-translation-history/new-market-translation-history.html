@@ -1,0 +1,338 @@
+<kt-portlet
+  [ngClass]="{
+    'kt-portlet--body-progress kt-portlet--body-progress-overlay': isMarketLoading
+  }"
+>
+  <kt-portlet-header [class]="'kt-portlet__head--lg'" style="padding: 0">
+    <ng-container ktPortletTitle>
+      <h5 class="kt-portlet__head-title">
+        <span>Clone History</span>
+      </h5>
+    </ng-container>
+  </kt-portlet-header>
+  <kt-portlet-body class="mx-2">
+    <div class="mat-table__wrapper">
+      <ng-container *ngIf="!isMarketLoading; else loadingSpinner">
+        <div class="table-container">
+          <table
+            mat-table
+            [dataSource]="marketDataSource"
+            multiTemplateDataRows
+            matSort
+          >
+            <ng-container matColumnDef="initiatedBy">
+              <th mat-header-cell *matHeaderCellDef>Initiated By</th>
+              <td mat-cell *matCellDef="let row">{{ row.initiatedBy }}</td>
+            </ng-container>
+            <ng-container matColumnDef="stoppedBy">
+              <th mat-header-cell *matHeaderCellDef>Stopped By</th>
+              <td mat-cell *matCellDef="let row">
+                <ng-container *ngIf="row.stoppedBy">
+                  {{ row.stoppedBy.firstName + " " + row.stoppedBy.lastName }}
+                </ng-container>
+                <ng-container *ngIf="!row.stoppedBy">-</ng-container>
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="action">
+              <th mat-header-cell *matHeaderCellDef>Stop</th>
+              <td mat-cell *matCellDef="let row">
+                <button
+                  color="warn"
+                  mat-icon-button=""
+                  mattooltip="Stop job"
+                  type="button"
+                  class="mat-icon-button mat-button-base mat-warn"
+                  ng-reflect-disabled="false"
+                  ng-reflect-color="warn"
+                  ng-reflect-message="Stop job"
+                  aria-describedby="cdk-describedby-message-16"
+                  cdk-describedby-host=""
+                  style="
+                    touch-action: none;
+                    user-select: none;
+                    -webkit-user-drag: none;
+                    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+                  "
+                  *ngIf="!row.isStopLoading && row.status === 'started'"
+                  (click)="stopMarketJob(row)"
+                >
+                  <span class="mat-button-wrapper"
+                    ><mat-icon
+                      class="mat-icon notranslate material-icons mat-icon-no-color mat-warn"
+                      role="img"
+                      aria-hidden="true"
+                    >
+                      <img
+                        style="margin-top: -10px;"
+                        src="../../../../../../assets/images/stop.png"
+                        alt="Stop"
+                        class="mat-icon notranslate material-icons mat-icon-no-color mat-warn"
+                        ng-reflect-color="warn" /></mat-icon
+                  ></span>
+                  <div
+                    class="mat-button-ripple mat-ripple mat-button-ripple-round"
+                    matripple=""
+                    ng-reflect-centered="true"
+                    ng-reflect-disabled="false"
+                    ng-reflect-trigger="[object HTMLButtonElement]"
+                  ></div>
+                  <div class="mat-button-focus-overlay"></div>
+                </button>
+                <span *ngIf="!row.isStopLoading && row.status !== 'started'"
+                  >-</span
+                >
+
+                <span *ngIf="row.isStopLoading === true">loading...</span>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="project">
+              <th mat-header-cell *matHeaderCellDef>Project</th>
+              <td mat-cell *matCellDef="let row">{{ row.project }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="sourceLocale">
+              <th mat-header-cell *matHeaderCellDef>Source Locale</th>
+              <td mat-cell *matCellDef="let row">
+                {{ row.sourceLocale.regionCode }}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="targetLocale">
+              <th mat-header-cell *matHeaderCellDef>Target Locale</th>
+              <td mat-cell *matCellDef="let row">
+                {{ row.targetLocale.regionCode }}
+                <span
+                  class="pill"
+                  [ngClass]="{ cloned: row.cloned, 'not-cloned': !row.cloned }"
+                  [matTooltip]= 'Cloned' 
+                >
+                  {{ row.cloned ? "C" : "T" }}
+                </span>
+              </td>
+            </ng-container>
+
+            <!-- <ng-container matColumnDef="content_type">
+              <th mat-header-cell *matHeaderCellDef>Content Model Id</th>
+              <td mat-cell *matCellDef="let row">{{ row.content_type }}</td>
+            </ng-container> -->
+
+            <ng-container matColumnDef="error">
+              <th mat-header-cell *matHeaderCellDef>Error</th>
+              <td mat-cell *matCellDef="let element">
+                <a
+                  mat-button
+                  color="primary"
+                  *ngIf="element.error?.message"
+                  (click)="toggleMarketErrorExpand(element)"
+                  matTooltip="Click to view error details"
+                >
+                  View Errors
+                </a>
+                <span *ngIf="!element.error?.message">-</span>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="details">
+              <th mat-header-cell *matHeaderCellDef>Details</th>
+              <td mat-cell *matCellDef="let element">
+                <a
+                  mat-button
+                  color="primary"
+                  (click)="toggleMarketDetailsExpand(element)"
+                  matTooltip="Click to view details"
+                >
+                  Show Details
+                </a>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="status">
+              <th mat-header-cell *matHeaderCellDef>Status / ETA</th>
+              <td mat-cell *matCellDef="let row; let rowIndex = index">
+                <label
+                  #statusEle
+                  style="white-space: unset; width: 80px"
+                  class="text-white badge badge-pill"
+                  [ngClass]="
+                    row.status === 'completed'
+                      ? 'badge-success'
+                      : row.status === 'error'
+                      ? 'badge-danger'
+                      : row.eta !== null && row.eta !== 0
+                      ? 'badge-dark'
+                      : 'badge-warning'
+                  "
+                >
+                  {{
+                    row.status === "started" &&
+                    row.eta !== null &&
+                    row.eta !== 0
+                      ? formatMarketCountdown(countdownMarketTimers[generateMarketUniqueKey(row)])
+                      : row.status
+                  }}
+                </label>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="createdAt">
+              <th mat-header-cell *matHeaderCellDef>Created At</th>
+              <td mat-cell *matCellDef="let row">
+                {{ row.createdAt | date : "medium" }}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="total_entries">
+              <th mat-header-cell *matHeaderCellDef>
+                Entry Count
+                <span
+                  style="cursor: pointer"
+                  matTooltip="Completed Entries / Total No. Of Entries"
+                  ><strong>ⓘ</strong></span
+                >
+              </th>
+              <td mat-cell *matCellDef="let row">
+                {{ row.total_entries - row.remaining_entries }} /
+                {{ row.total_entries }}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="total_time_taken">
+              <th mat-header-cell *matHeaderCellDef>Total Time Taken (min)</th>
+              <td mat-cell *matCellDef="let row">
+                {{ row.total_time_taken ? row.total_time_taken : "-" }}
+              </td>
+            </ng-container>
+
+            <!-- Expanded Content Column to view error data in table manner -->
+            <ng-container matColumnDef="expandedErrorDetail">
+              <td
+                mat-cell
+                *matCellDef="let element"
+                [attr.colspan]="displayedMarketColumns.length"
+              >
+                <div
+                  class="example-element-error"
+                  [@detailExpand]="
+                    element == expandedMarketErrorElement ? 'expanded' : 'collapsed'
+                  "
+                >
+                  <div>
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>Error</th>
+                          <th>Message</th>
+                          <th>Details</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>{{ element.error?.statusCode || "-" }}</td>
+                          <td>{{ element.error?.message || "-" }}</td>
+                          <td>{{ element.error?.statusText || "-" }}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <p
+                    class="error-message"
+                    *ngIf="!element.error || element.error.length === 0"
+                  >
+                    {{
+                      element.error?.message || "error details not available"
+                    }}
+                  </p>
+                </div>
+              </td>
+            </ng-container>
+
+            <!-- Expanded column to view details of translation -->
+            <ng-container matColumnDef="expandedMarketDetails">
+              <td
+                mat-cell
+                *matCellDef="let element"
+                [attr.colspan]="displayedMarketColumns.length"
+              >
+                <div
+                  class="example-element-error"
+                  [@detailExpand]="
+                    !!expandedMarketDetails && element._id === expandedMarketDetails._id
+                      ? 'expanded'
+                      : 'collapsed'
+                  "
+                >
+                  <div>
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>Type</th>
+                          <th>Conent Model</th>
+                          <th>Tags Included</th>
+                          <th>Tags Excluded</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>
+                            Cloned by
+                            {{ element.byTags ? "Tags" : "Content Model" }}
+                          </td>
+                          <td>
+                            {{ !element.byTags ? element.content_type : "N/A" }}
+                          </td>
+                          <td>{{ getMarketTagsString(element, "included") }}</td>
+                          <td>{{ getMarketTagsString(element, "excluded") }}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedMarketColumns"></tr>
+            <tr
+              mat-row
+              *matRowDef="let element; columns: displayedMarketColumns"
+              class="example-element-row"
+              [class.example-expanded-row]="expandedElement === element"
+            ></tr>
+            <tr
+              mat-row
+              *matRowDef="let row; columns: ['expandedErrorDetail']"
+              class="example-detail-row"
+            ></tr>
+            <tr
+              mat-row
+              *matRowDef="let row; columns: ['expandedMarketDetails']"
+              class="example-detail-row"
+            ></tr>
+          </table>
+        </div>
+      </ng-container>
+    </div>
+    <mat-paginator
+      #paginator
+      [hidden]="isMarketLoading"
+      [hidden]="noMarketData"
+      [hidePageSize]="true"
+      [length]="totalMarketCount"
+      [showFirstLastButtons]="false"
+      (page)="onMarketPageChange($event)"
+    >
+    </mat-paginator>
+
+    <ng-template #loadingSpinner>
+      <div class="loader-container" *ngIf="isMarketLoading">
+        <mat-progress-spinner
+          class="loader"
+          color="primary"
+          diameter="40"
+          strokeWidth="4"
+          mode="indeterminate"
+        ></mat-progress-spinner>
+      </div>
+    </ng-template>
+  </kt-portlet-body>
+</kt-portlet>

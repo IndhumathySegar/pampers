@@ -1,0 +1,46 @@
+<div class="kt-portlet">
+    <div class="kt-portlet__head kt-portlet__head__custom">
+        <div class="kt-portlet__head-label">
+            <h3 class="kt-portlet__head-title">Download Links</h3>
+        </div>
+    </div>
+
+    <div class="kt-form">
+        <div class="kt-portlet__body">
+            <div class="kt-portlet__body-progress">
+                <mat-spinner [diameter]="20"></mat-spinner>
+            </div>
+
+            <ul>
+                <li *ngFor="let link of links; let pointer = index">
+                    <div class="row">
+                        <div class="col-md-8 kt-margin-bottom-10-mobile">
+                            <span>{{ link[0] }} - </span>
+                            <a [href]="link[1]" target="_blank">Click here to download</a>
+                        </div>
+                    </div>
+                    <hr *ngIf="pointer !== links.length -1" />
+                </li>
+            </ul>
+
+            <div class="mat-table__message"
+                style="display: flex; margin: 1.5rem 0; justify-content: center; align-items: center"
+                *ngIf="links.length === 0">
+                No Record Found
+            </div>
+        </div>
+
+        <div class="kt-portlet__foot kt-portlet__no-border kt-portlet__foot--fit">
+            <div class="kt-form__actions kt-form__actions--solid">
+                <div class="row text-right">
+                    <div class="col-lg-12">
+                        <button type="button" mat-raised-button (click)="onCancel()" matTooltip="Close" tabindex="5">
+                            Cancel
+                        </button>&nbsp;
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

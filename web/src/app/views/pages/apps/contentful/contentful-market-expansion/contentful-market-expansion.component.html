@@ -1,0 +1,205 @@
+<kt-portlet
+  [ngClass]="{
+    'kt-portlet--body-progress kt-portlet--body-progress-overlay': isLoading
+  }"
+>
+  <kt-portlet-header [class]="'kt-portlet__head--lg'" style="padding: 0">
+    <ng-container ktPortletTitle>
+      <h5 class="kt-portlet__head-title">
+        <span>Content Cloning for New Markets</span>
+      </h5>
+    </ng-container>
+  </kt-portlet-header>
+  <kt-portlet-body class="mx-2">
+    <div
+      class="kt-form__filtration kt-margin"
+      class="code-section"
+      [class.equal-padding]="isScrolled"
+    >
+      <div class="row align-items-center filter-margin ml-5 mt-3">
+        <div class="col-md-3 kt-margin-bottom-10-mobile">
+          <mat-form-field class="mat-form-field-fluid">
+            <mat-label>Source Locale</mat-label>
+            <mat-select
+              [ngModel]="sourceLocale"
+              [disabled]="isLoading"
+              (ngModelChange)="resetDestLocales($event)"
+              required
+            >
+              <mat-option
+                *ngFor="let locale of sourceLocaleOptions"
+                [value]="locale"
+              >
+                {{ locale.regionName }} ({{ locale.regionCode }})
+              </mat-option>
+            </mat-select>
+            <mat-hint align="start">
+              <strong>Clone</strong> content from Locale
+            </mat-hint>
+          </mat-form-field>
+        </div>
+
+        <div class="col-md-3 kt-margin-bottom-10-mobile">
+          <mat-form-field class="mat-form-field-fluid">
+            <mat-label>Destination Locale</mat-label>
+            <mat-select
+              [(ngModel)]="destLocale"
+              [disabled]="isLoading || !sourceLocale"
+              required
+            >
+              <mat-option *ngFor="let locale of destLocaleOptions" [value]="locale">
+                {{ locale.regionName }} ({{ locale.regionCode }})
+              </mat-option>
+            </mat-select>
+            <mat-hint align="start">
+              <strong>Clone</strong> content to Locale
+            </mat-hint>
+          </mat-form-field>
+        </div>
+
+      
+
+        <div class="col-md-1 kt-margin-bottom-10-mobile">
+          <mat-slide-toggle
+            [(ngModel)]="byTags"
+            color="primary"
+            [disabled]="isLoading"
+          ></mat-slide-toggle>
+          <br />
+          <mat-hint align="start" style="font-size: 10px">
+            <strong>Tags</strong>
+          </mat-hint>
+        </div>
+
+
+        <div class="col-md-3 kt-margin-bottom-10-mobile">
+          <button
+            mat-raised-button
+            (click)="byTags ? startTranslationByTags() : startTranslation(selectedRows)"
+            color="primary"
+            [disabled]="submitButtonDisabled()"
+          >
+             Clone
+          </button>
+        </div>
+      </div>
+
+      <div class="row align-items-center filter-margin ml-5 mt-5" *ngIf="!byTags">
+        <div class="col-md-3 kt-margin-bottom-10-mobile">
+          <mat-form-field class="mat-form-field-fluid">
+            <input
+              matInput
+              placeholder="Search Content Model"
+              [disabled]="isLoading"
+              (input)="applyFilter($event.target.value)"
+            />
+          </mat-form-field>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="kt-portlet__body">
+      <!-- By Tags -->
+      <ng-container *ngIf="byTags">
+        <div class="row align-items-center filter-margin ml-3 mt-3">
+          <div class="col-md-3 kt-margin-bottom-10-mobile">
+            <mat-form-field class="mat-form-field-fluid">
+              <mat-label>Include Tags</mat-label>
+              <mat-select
+                multiple
+                [ngModel]="includedTags"
+                (ngModelChange)="setIncludedTags($event)"
+                [disabled]="isLoading"
+              >
+                <mat-option
+                  *ngFor="let tag of includeTags"
+                  [value]="tag.sys.id"
+                >
+                  {{ tag.name }}
+                </mat-option>
+              </mat-select>
+              <mat-hint align="start">
+                <strong>Include</strong> contentful tags for translation
+              </mat-hint>
+            </mat-form-field>
+          </div>
+  
+          <div class="col-md-3 kt-margin-bottom-10-mobile">
+            <mat-form-field class="mat-form-field-fluid">
+              <mat-label>Exclude Tags</mat-label>
+              <mat-select
+                multiple
+                [ngModel]="excludedTags"
+                (ngModelChange)="setExcludedTags($event)"
+                [disabled]="isLoading"
+              >
+                <mat-option *ngFor="let tag of excludeTags" [value]="tag.sys.id">
+                  {{ tag.name }}
+                </mat-option>
+              </mat-select>
+              <mat-hint align="start">
+                <strong>Exclude</strong> contentful tags for translation
+              </mat-hint>
+            </mat-form-field>
+          </div>
+        </div>
+      </ng-container>
+      <!-- By Tags -->
+
+      <!-- By Content Model -->
+      <ng-container *ngIf="!isLoading && !byTags; else loadingSpinner">
+        <table mat-table [dataSource]="dataSource" class="custom-table">
+          <!-- Define columns here -->
+          <ng-container matColumnDef="modelName">
+            <th mat-header-cell *matHeaderCellDef>Content Model</th>
+            <td mat-cell *matCellDef="let entry">{{ entry.modelName }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="select">
+            <th mat-header-cell *matHeaderCellDef>
+              <mat-checkbox
+                *ngIf="!searching"
+                (change)="toggleAllRowsSelection()"
+                [checked]="allRowsSelected"
+                color="primary"
+              >
+              </mat-checkbox>
+            </th>
+            <td mat-cell *matCellDef="let row">
+              <mat-checkbox
+                [ngModel]="row.selected"
+                (ngModelChange)="toggleRowSelection(row)"
+                (click)="$event.stopPropagation()"
+                color="primary"
+              >
+              </mat-checkbox>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr
+            mat-row
+            *matRowDef="let row; columns: displayedColumns"
+            (click)="toggleRowSelection(row)"
+          ></tr>
+        </table>
+      </ng-container>
+      <!-- By Content Model -->
+
+      <!-- Loader -->
+      <ng-template #loadingSpinner>
+        <div class="loader-container" *ngIf="isLoading">
+          <mat-progress-spinner
+            class="loader"
+            color="primary"
+            diameter="40"
+            strokeWidth="4"
+            mode="indeterminate"
+          ></mat-progress-spinner>
+        </div>
+      </ng-template>
+      <!-- Loader -->
+    </div>
+  </kt-portlet-body>
+</kt-portlet>

@@ -1,0 +1,51 @@
+table {
+  width: 100%;
+}
+
+.table-image {
+  height: 70px;
+  margin: 5px;
+  border-radius: 5px;
+  box-shadow: 1px 2px #ccc;
+}
+
+::ng-deep .mat-checkbox .mat-checkbox-frame {
+  border-color: #0abb87;
+}
+
+::ng-deep .mat-checkbox-checked .mat-checkbox-background {
+  background-color: #0abb87 !important;
+}
+
+::ng-deep .mat-checkbox-indeterminate .mat-checkbox-background {
+  border-color: #0abb87 !important;
+  background-color: #0abb87 !important;
+}
+
+::ng-deep mat-checkbox .mat-checkbox-checkmark-path {
+  stroke: white !important;
+}
+
+.filter-margin {
+  margin: 12px 12px -12px !important;
+}
+
+.success {
+  color: #00a6a6;
+}
+
+.failed {
+  color: #dc3545;
+}
+
+.pending {
+  color: #ffc107;
+}
+
+.iphone {
+  color: #6c757d;
+}
+
+.android {
+  color: #00a6a6;
+}

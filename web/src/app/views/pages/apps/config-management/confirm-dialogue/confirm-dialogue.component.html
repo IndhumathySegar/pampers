@@ -1,0 +1,80 @@
+<div class="kt-portlet">
+  <div class="kt-portlet__head kt-portlet__head__custom">
+    <div class="kt-portlet__head-label">
+      <h3 class="kt-portlet__head-title">{{ message }}</h3>
+      <mat-spinner [hidden]="!isLoading" style="right: 3%; position: absolute;" [diameter]="20"></mat-spinner>
+    </div>
+    <div class="kt-form__actions kt-form__actions--solid justify-content-end my-auto">
+      <div class="row text-right">
+        <div class="col-lg-12">
+          <div class="row justify-content-end">
+            <button type="button" mat-raised-button mat-dialog-close
+                    matTooltip="Cancel changes" tabindex="5">
+              {{cancelButtonText}}
+            </button>&nbsp;
+            <button type="button" mat-raised-button color="primary" (click)="onConfirmClick()"
+                    matTooltip="Save changes">
+              {{confirmButtonText}}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="kt-form">
+    <div class="kt-portlet__body">
+      <mat-dialog-content>
+        <div *ngFor="let data of dataSourceList; let idx = index;">
+          <div
+            *ngIf="!hideTable"
+          >
+            <div class="row">
+              <div class="col col-md-12">
+                <div class="row  justify-content-center kt-margin-top-20">
+                  <h5 style="color: #48465b">
+                    {{ tableId[idx].split("_").join(" ").toUpperCase() }}
+                  </h5>
+                </div>
+
+                <div class="row">
+                  <table mat-table [dataSource]="data" class="mat-elevation-z0">
+                    <!--- Note that these columns can be defined in any order.
+                          The actual rendered columns are set as a property on the row definition" -->
+
+                    <!-- Position Column -->
+                    <ng-container matColumnDef="position">
+                      <th mat-header-cell *matHeaderCellDef> No. </th>
+                      <td mat-cell *matCellDef="let element"> {{element.position}} </td>
+                    </ng-container>
+
+                    <!-- ConfigKey Column -->
+                    <ng-container matColumnDef="configKey">
+                      <th mat-header-cell *matHeaderCellDef> Config Key </th>
+                      <td mat-cell *matCellDef="let element"> {{element.configKey}} </td>
+                    </ng-container>
+
+                    <!-- Prior ConfigValue Column -->
+                    <ng-container *ngIf="isPrior" matColumnDef="priorValue">
+                      <th mat-header-cell *matHeaderCellDef> Prior Config Value </th>
+                      <td mat-cell *matCellDef="let element"> {{element.priorValue}} </td>
+                    </ng-container>
+
+                    <!-- ConfigValue Column -->
+                    <ng-container matColumnDef="configValue">
+                      <th mat-header-cell *matHeaderCellDef> Config Value </th>
+                      <td mat-cell *matCellDef="let element"> {{element.configValue}} </td>
+                    </ng-container>
+
+                    <tr mat-header-row *matHeaderRowDef="isPrior ? displayedColumnsWithPrior : displayedColumns"></tr>
+                    <tr mat-row *matRowDef="let row; columns: isPrior ? displayedColumnsWithPrior : displayedColumns;"></tr>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </mat-dialog-content>
+    </div>
+  </div>
+</div>

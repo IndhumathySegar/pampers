@@ -1,0 +1,159 @@
+<kt-portlet>
+  <kt-portlet-header [class]="'kt-portlet__head--lg'" style="padding: 0">
+    <ng-container ktPortletTitle>
+      <h5 class="kt-portlet__head-title">
+        <span>New Locale History</span>
+      </h5>
+    </ng-container>
+  </kt-portlet-header>
+  <kt-portlet-body>
+    <div class="mat-table__wrapper">
+      <table
+        mat-table
+        [dataSource]="dataSource"
+        multiTemplateDataRows
+        class="mat-elevation-z8"
+      >
+        <ng-container matColumnDef="email">
+          <th mat-header-cell *matHeaderCellDef>Initiated By</th>
+          <td mat-cell *matCellDef="let element">{{ element.email || "-" }}</td>
+        </ng-container>
+        <ng-container matColumnDef="spaceId">
+          <th mat-header-cell *matHeaderCellDef>Space ID</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.data?.req?.spaceId || "-" }}
+          </td>
+        </ng-container>
+   
+        <ng-container matColumnDef="region">
+          <th mat-header-cell *matHeaderCellDef>Region</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.reqPayload?.region || "-" }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="markets">
+          <th mat-header-cell *matHeaderCellDef>Market</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.reqPayload?.markets || "-" }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="code">
+          <th mat-header-cell *matHeaderCellDef>Locale Code</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.data.req?.code || "-" }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="language">
+          <th mat-header-cell *matHeaderCellDef>Language</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.data.req?.language || "-" }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="error">
+          <th mat-header-cell *matHeaderCellDef>Details</th>
+          <td mat-cell *matCellDef="let element">
+            <a
+              mat-button
+              color="primary"
+              (click)="toggleErrorExpand(element)"
+              matTooltip="Click to view operation details"
+            >
+              View Details
+            </a>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="createdAt">
+          <th mat-header-cell *matHeaderCellDef>Initiated At</th>
+          <td mat-cell *matCellDef="let element">
+            {{ formatDateTime(element.createdAt) }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef>Status</th>
+          <td mat-cell *matCellDef="let element">
+            <label
+              #statusEle
+              style="white-space: unset"
+              class="text-white badge badge-pill"
+              [ngClass]="
+                getStatus(element.data) === 'failure'
+                  ? 'badge-danger'
+                  : getStatus(element.data) === 'success'
+                  ? 'badge-success'
+                  : 'badge-warning'
+              "
+            >
+              {{ getStatus(element.data) }}
+            </label>
+          </td>
+        </ng-container>
+
+        <!-- Expanded Content Column to view error data in table manner -->
+        <ng-container matColumnDef="expandedErrorDetail">
+          <td
+            mat-cell
+            *matCellDef="let element"
+            [attr.colspan]="displayedColumns.length"
+          >
+            <div
+              class="example-element-error"
+              [@detailExpand]="
+                element == expandedErrorElement ? 'expanded' : 'collapsed'
+              "
+            >
+              <div *ngIf="element && element.data && element.data.res">
+                <table>
+                  <thead>
+                    <th>Environment Id</th>
+                    <th>Status</th>
+                    <th>Comments</th>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let result of element.data.res">
+                      <td>{{ result.envId }}</td>
+                      <td>{{ result.type }}</td>
+                      <td>{{ getCommentFromType(result.type) }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <p
+                class="error-message"
+                *ngIf="!element.data || !element.data.req || !element.data.res"
+              >
+                {{ "Details not available" }}
+              </p>
+            </div>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr
+          mat-row
+          *matRowDef="let element; columns: displayedColumns"
+          class="example-element-row"
+          [class.example-expanded-row]="expandedElement === element"
+        ></tr>
+        <tr
+          mat-row
+          *matRowDef="let row; columns: ['expandedErrorDetail']"
+          class="example-detail-row"
+        ></tr>
+      </table>
+      <!-- Message for empty data  -->
+      <div class="mat-table__message" [hidden]="!noData">No records found</div>
+      <mat-paginator
+        #paginator
+        [hidden]="isLoading"
+        [hidden]="noData"
+        [hidePageSize]="true"
+        [length]="totalCount"
+        [pageSizeOptions]="[50]"
+        [showFirstLastButtons]="false"
+        (page)="onPageChange($event)"
+      >
+      </mat-paginator>
+    </div>
+  </kt-portlet-body>
+</kt-portlet>

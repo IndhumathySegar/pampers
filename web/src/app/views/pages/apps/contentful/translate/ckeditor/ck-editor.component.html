@@ -1,0 +1,74 @@
+<div class="kt-portlet" [ngClass]="{ 'kt-portlet--body-progress kt-portlet--body-progress-overlay' : isLoading }">
+    <div class="kt-portlet__head kt-portlet__head__custom">
+        <div class="kt-portlet__head-label">
+            <h3 class="kt-portlet__head-title">Replace Value</h3>
+        </div>
+    </div>
+
+    <div class="kt-form">
+        <div class="kt-portlet__body">
+            <div class="kt-portlet__body-progress">
+                <mat-spinner [diameter]="40"></mat-spinner>
+            </div>
+            <!-- <ckeditor [data]="ckData" id="customEditorId" [config]="editorConfig" (change)="updateContent($event)"  class="custom-ckeditor" ></ckeditor> -->
+            <!-- <ngx-ckeditor [(ngModel)]="ckData" id="customEditorId" [config]="editorConfig" (ready)="onEditorReady($event)" ></ngx-ckeditor> -->
+            <editor class="small-editor" [(ngModel)]="ckData" (ngModelChange)="updateContent($event)"
+            [apiKey]="editorKey"
+            [init]="{
+           height: 300,  
+              menubar: false,
+              plugins: [
+                'advlist autolink lists link image charmap print preview anchor',
+                'searchreplace visualblocks code fullscreen',
+                'insertdatetime media table paste code help wordcount'
+              ],
+              
+              toolbar:
+                'undo redo | formatselect | bold italic backcolor | \
+                 alignleft aligncenter alignright alignjustify | \
+                 bullist numlist outdent indent | removeformat | help'
+                
+            }
+            "
+            
+          ></editor>
+        </div>
+
+        <div class="kt-portlet__foot kt-portlet__no-border kt-portlet__foot--fit">
+            <div class="kt-form__actions kt-form__actions--solid">
+                <div class="row text-right">
+                    <div class="col-lg-12">
+                        <button 
+                        type="button" 
+                        mat-raised-button 
+                        color="primary"
+                       
+                        (click)="submitContent()"
+                        [disabled]="isLoading"
+                        matTooltip="Submit content" 
+                       >
+                        Submit
+                    </button>
+                        <button 
+                            type="button" 
+                            mat-raised-button 
+                            (click)="onCancel(false)"
+                            matTooltip="Close" 
+                            >
+                            Cancel
+                        </button>&nbsp;
+                
+
+                    
+
+             
+                 
+
+                     
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+      </div>
+</div>

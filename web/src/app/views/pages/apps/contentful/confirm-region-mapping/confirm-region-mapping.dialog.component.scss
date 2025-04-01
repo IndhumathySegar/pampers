@@ -1,0 +1,37 @@
+.kt-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 15px;
+}
+
+.form-item {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.label {
+    font-weight: bold;
+    margin-right: 10px;
+    min-width: 150px; 
+}
+
+.value {
+    flex: 1;
+    word-break: break-all;
+}
+
+.horizontal-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+.horizontal-list li {
+    display: inline-block; 
+    margin-right: 10px; 
+    margin-bottom: 5px; 
+    padding: 5px 10px; 
+    background-color: #f1f1f1; 
+    border-radius: 5px; 
+}

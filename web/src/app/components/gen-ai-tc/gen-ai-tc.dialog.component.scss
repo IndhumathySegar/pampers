@@ -1,0 +1,33 @@
+.content-section {
+    padding: 25px;
+    overflow: auto;
+    height: auto;
+}
+
+.content-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.tc-submit {
+    height: 45px;
+    border-radius: 5px;
+    box-shadow: 0 3px 1px -1px rgba(0, 0, 0, .2);
+}
+
+.kt-portlet {
+    // position: fixed;
+    z-index: 9999;
+    // top: 0;
+    // left: 0;
+    // width: 100vw;
+    // height: 100vh;
+    // background: rgba(0, 0, 0, 0.8); 
+  }
+  
+  .kt-portlet__head__custom {
+    // pointer-events: none; 
+  }
+  

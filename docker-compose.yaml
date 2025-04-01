@@ -1,0 +1,24 @@
+version: '3'
+services:
+  pampers-api:
+    env_file:
+      - ./api/config/.env.dev
+    build:
+      context: ./api
+      dockerfile: Dockerfile.dev
+    ports:
+      - "7071:7071"
+    container_name: pampers-api
+    volumes:
+       - ./api:/app/backend
+       - /app/backend/node_modules
+  pampers-web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile.dev
+    ports:
+      - "5200:5200"
+    container_name: pampers-web
+    volumes:
+       - ./web:/app/frontend
+       - /app/frontend/node_modules

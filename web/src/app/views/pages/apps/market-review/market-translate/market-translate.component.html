@@ -1,0 +1,91 @@
+<kt-portlet [ngClass]="{
+   'kt-portlet--body-progress kt-portlet--body-progress-overlay': isLoading
+ }">
+  <kt-portlet-header [class]="'kt-portlet__head--lg'" style="padding: 0">
+    <ng-container ktPortletTitle>
+      <h5 class="kt-portlet__head-title">
+        <span>Content</span>
+      </h5>
+    </ng-container>
+  </kt-portlet-header>
+  <kt-portlet-body class="mx-2">
+    <div class="kt-form__filtration kt-margin" class="code-section" [class.equal-padding]="isScrolled">
+      <div class="row align-items-center filter-margin ml-2 mt-4">
+     
+
+        <div class="col-md-3 kt-margin-bottom-10-mobile" *ngIf="environment">
+          <mat-form-field class="mat-form-field-fluid">
+            <mat-label>Locale</mat-label>
+            <mat-select
+              [ngModel]="sourceLocale"
+              [disabled]="isLoading"
+             
+              (selectionChange)="onLocaleChange($event)"
+              required
+            >
+              <mat-option
+                *ngFor="let locale of sourceLocaleOptions"
+                [value]="locale.regionCode"
+              >
+                {{ locale.regionCode }} 
+              </mat-option>
+            </mat-select>
+       
+          </mat-form-field>
+        </div>
+
+       
+          <div class="col-md-3 kt-margin-bottom-10-mobile" >
+            <mat-form-field class="mat-form-field-fluid">
+              <input
+                matInput
+                #searchInput
+                placeholder="Search Content Model/ Value"
+                [disabled]="isLoading || !sourceLocale"
+                (input)="applyFilter($event.target.value)"
+              />
+              <button (click)="clearSearchInput()" [hidden]="!filter" mat-button matSuffix mat-icon-button
+              aria-label="Clear">
+              <mat-icon>close</mat-icon>
+              </button>
+            </mat-form-field>
+          
+        </div>
+        <div class="col-md-3 kt-margin-bottom-10-mobile">
+          <div class="button-container">
+            <button
+              mat-raised-button
+              color="primary"
+              aria-label="Search"
+              (click)="fetchContentModel()"
+              [disabled]="!filter"
+            >
+              Search
+            </button>
+            </div>
+            </div>
+
+      
+      </div>
+      <br>
+     
+    </div>
+    <div *ngIf="showTable && !isLoading">
+      <kt-translate-table
+        [dataSource]="dataSource"
+        [sourceLocale]="sourceLocale"
+        [environment]="environment"
+        (fetchContentModel)="fetchContentModel()"
+        (pageChanged)="loadMore($event) "
+        [totalCount]="totalCount"
+        [pageSize]="pageSize"
+        [storedPageIndex]="storedPageIndex"
+      ></kt-translate-table>
+    </div>
+
+    <mat-card *ngIf="isLoading" style="display: flex; justify-content: center; align-items: center">
+      <mat-progress-spinner color="primary" diameter="40" strokeWidth="1" mode="indeterminate">
+      </mat-progress-spinner>
+    </mat-card>
+  </kt-portlet-body>
+</kt-portlet>

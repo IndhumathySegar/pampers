@@ -1,0 +1,351 @@
+table {
+  width: 100%;
+}
+.table-image {
+  height: 70px;
+  margin: 5px;
+  border-radius: 5px;
+}
+
+.filter-margin {
+  margin-top: 12px !important;
+  margin-right: 12px !important;
+  margin-left: 12px !important;
+}
+
+.mat-paginator-range-label {
+  display: none;
+}
+
+.mat-form-field {
+  font-size: 14px;
+  width: 100%;
+}
+
+
+/* Border */
+.mat-form-field-appearance-outline .mat-form-field-outline {
+  color: rgb(255, 255, 255);
+  /* background-color: white; */
+}
+/* Font color */
+input.mat-input-element {
+  color: rgb(0, 0, 0);
+}
+
+.mat-column-select {
+  //width: 5% !important;
+  //padding-right: 30px;
+}
+
+.mat-column-key {
+ // width: 30% !important;
+  padding-right: 30px;
+  word-wrap: break-word;
+}
+
+.mat-column-value {
+ // width: 30% !important;
+  padding-right: 30px;
+  word-wrap: break-word;
+}
+
+.mat-column-valueTranslated {
+ // width: 30% !important;
+  padding-right: 0px;
+  word-wrap: break-word;
+}
+
+.mat-column-translate {
+
+  padding-right: 0px;
+}
+
+.translate-table th {
+  padding: 10px;
+}
+
+.translate-tables th {
+  padding-right: 100px;
+}
+.translate-table td {
+  vertical-align: top;
+  padding: 10px;
+}
+.text-wrap {
+  word-break: break-all;
+  width: 150px;
+} 
+ .w-80 {
+  width: 80px;
+}
+// Not Permitted table
+.mat-column-select1 {
+  word-wrap: break-word !important;
+  white-space: unset !important;
+  flex: 0 0 20% !important;
+  width: 10% !important;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+
+  word-break: break-word;
+
+  -ms-hyphens: auto;
+  -moz-hyphens: auto;
+  -webkit-hyphens: auto;
+  hyphens: auto;
+}
+
+.mat-column-key1 {
+  word-wrap: break-word !important;
+  white-space: unset !important;
+  flex: 0 0 40% !important;
+  width: 30% !important;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+
+  word-break: break-word;
+
+  -ms-hyphens: auto;
+  -moz-hyphens: auto;
+  -webkit-hyphens: auto;
+  hyphens: auto;
+}
+
+.mat-column-value1 {
+  word-wrap: break-word !important;
+  white-space: unset !important;
+  flex: 0 0 40% !important;
+  width: 30% !important;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+
+  word-break: break-word;
+
+  -ms-hyphens: auto;
+  -moz-hyphens: auto;
+  -webkit-hyphens: auto;
+  hyphens: auto;
+}
+
+.mat-column-valueTranslated1 {
+  word-wrap: break-word !important;
+  white-space: unset !important;
+  flex: 0 0 40% !important;
+  width: 30% !important;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+
+  word-break: break-word;
+
+  -ms-hyphens: auto;
+  -moz-hyphens: auto;
+  -webkit-hyphens: auto;
+  hyphens: auto;
+}
+
+.icon-checkbox-container {
+  display: flex;
+  align-items: center;
+}
+
+.icon-checkbox-container mat-icon {
+  margin-left: 25px;
+  margin-top: 7px;
+}
+
+.mat-row:hover {
+  background-color: #f5f5f5;
+}
+
+.search-container {
+  display: flex;
+  align-items: center;
+}
+
+.search-icon {
+  margin-right: 5px; /* Adjust the margin value as needed */
+}
+
+.no-records-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%; /* Adjust this height value as needed */
+  padding: 40px;
+}
+
+.no-records-container p {
+  text-align: center;
+  font-size: 20px;
+}
+.info-icon {
+  height: 18px;
+  text-align: center;
+  width: 18px;
+  border-radius: 50%;
+  display: inline-block;
+  background-color: #ccc;
+  color: black;
+}
+
+.custom-ckeditor {
+  padding: 10px;
+  width: 200px;
+  word-break: break-all; 
+  text-align: left; 
+  border: 1px solid #d8dce6; 
+  padding: 0;
+  margin: 20px;
+  margin-left: 0px;
+}
+.red-border {
+  border: 1px solid red !important;
+}
+
+.red-text {
+  color: red;
+}
+
+.accordion {
+  background-color: #f3f3f3;
+  // color: #a09e9e;
+  cursor: pointer;
+  padding: 18px;
+  width: 100%;
+  border: none;
+  text-align: left;
+  outline: none;
+  font-size: 15px;
+  transition: 0.4s;
+  display: flex;
+  align-items: center;
+  justify-content: space-between; 
+}
+
+.accordion-arrow {
+  transition: transform 0.3s ease;
+}
+
+.accordion-arrow.expanded {
+  transform: rotate(180deg);
+}
+
+// .active, .accordion:hover {
+//   background-color: #ccc;
+// }
+
+.panel {
+  padding: 0 18px;
+  background-color: white;
+  display: none;
+}
+
+.panel.active {
+  display: block;
+}
+
+.showTab {
+  display: flex; 
+  align-items: center; 
+  background-color: #f3f3f3;
+  // color: #a09e9e;
+  cursor: pointer;
+  @media(max-width:1260px){
+    width: 1144px;
+  }
+}
+@media(max-width:1260px){
+  .textReview {
+    width: 120px !important;
+  }
+}
+
+
+// .showTab:hover {
+//   background-color: #ccc;
+// }
+
+::ng-deep .mat-checkbox-checked .mat-checkbox-background {
+  background-color: #0abb87 !important;
+  border-color: #0abb87 !important;
+}
+
+.pagination-info { 
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.54);
+  text-align: center;
+  margin-left: auto;
+  padding-right: 16px;
+  padding-top: 14px;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+.pagination-goinfo { 
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.54);
+  text-align: center;
+  // margin-left: auto;
+  padding-right: 16px;
+  padding-top: 14px;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+
+.pagination-container {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end; /* Aligns the content to the right */
+  width: auto; /* Allows the container to fit the content width */
+  padding-right: 50px; /* Add padding if necessary to align it */
+}
+
+
+::ng-deep .pagination-container .mat-paginator-range-label {
+  display: none;
+}
+
+::ng-deep .mat-paginator-navigation-previous .mat-icon-button .mat-button-base{
+  background-color : green;
+}
+
+.manual-page {
+  width: 50px; /* Adjust the width as needed */
+  padding: 2px; /* Adjust the padding for a smaller input box */
+  border: 1px solid #d0d5d0;
+  text-align: center; /* Center the text inside the box */
+}
+
+.pagination-container-translate {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.hidden {
+  display: none;
+}
+
+
+.ai-message {
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  line-height: 1.2;
+}
+
+
+@media(max-width:1260px){
+  .ai-message {
+    white-space: nowrap;
+  }
+}
+
+
+
+
+@media(max-width:1390px){
+  .final-ai-text {
+    white-space: nowrap;
+  }
+}

@@ -1,0 +1,29 @@
+.border-style {
+    width: 100%;
+    padding: 10px 15px;
+
+    &:focus-visible {
+        outline: none;
+    }
+}
+
+::ng-deep .mat-checkbox-checked.mat-accent .mat-checkbox-background{
+        background: #0ABB87!important;
+}
+
+
+.loader-container {
+    position: fixed;
+    background: transparent;
+    top: 55%; /* Position at the vertical center */
+    left: 50%; /* Position at the horizontal center */
+    transform: translate(-50%, -50%);
+    z-index: 9999; /* Ensure it appears above the content */
+  }
+  .loader-container-card{
+    display: flex; 
+    justify-content: center; 
+    align-items: center;
+    background: transparent;
+    box-shadow: none;
+  }

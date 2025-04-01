@@ -1,0 +1,36 @@
+{
+  "defaultSeverity": "error",
+  "extends": ["tslint:recommended"],
+  "jsRules": {},
+  "rules": {
+    "no-console": false,
+    "curly": true,
+    "eofline": true,
+    "encoding": true,
+    "no-empty": [true, "allow-empty-catch"],
+    "no-return-await": true,
+    "no-var-keyword": true,
+    "no-empty-interface": false,
+    "no-duplicate-imports": true,
+    "allowUnreachableCode": false,
+    "no-trailing-whitespace": false,
+    "no-unused-expression": [true, "allow-new"],
+    "max-file-line-count": [true, 2000],
+    "cyclomatic-complexity": [true, 25],
+    "trailing-comma": [false],
+    "semicolon": [true, "always"],
+    "quotemark": [true, "double"],
+    "completed-docs": [
+      true,
+      {
+        "functions": {
+          "visibilities": ["exported"]
+        },
+        "methods": {
+          "privacies": ["public", "private"]
+        }
+      }
+    ]
+  },
+  "rulesDirectory": []
+}

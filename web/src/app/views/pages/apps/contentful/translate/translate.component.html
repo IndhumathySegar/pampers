@@ -1,0 +1,312 @@
+<kt-portlet
+  [ngClass]="{
+    'kt-portlet--body-progress kt-portlet--body-progress-overlay': isLoading
+  }"
+>
+ 
+  <kt-portlet-body class="mx-2">
+    <div
+      class="kt-form__filtration kt-margin"
+      class="code-section"
+      [class.equal-padding]="isScrolled"
+    >
+      <div class="row align-items-center filter-margin ml-2 mt-4">
+        <div class="col-md-3 not-review-dropdown kt-margin-bottom-10-mobile" *ngIf="!isReviewPage">
+          <mat-form-field class="mat-form-field-fluid">
+            <mat-label>Select Project</mat-label>
+            <mat-select
+              [ngModel]="spaceId"
+              (selectionChange)="getEnvironments($event.value)"
+            >
+              <mat-option
+                value="{{ item.sys.id }}"
+                *ngFor="let item of projects"
+                >{{ item.name }}</mat-option
+              >
+            </mat-select>
+            <mat-hint *ngIf="isSpaceLoading">Loading...</mat-hint>
+            <mat-hint align="start" *ngIf="!isSpaceLoading">
+              <strong>Select</strong> space for translation
+            </mat-hint>
+          </mat-form-field>
+        </div>
+        <div class="col-md-3 not-review-dropdown kt-margin-bottom-10-mobile">
+          <mat-form-field class="mat-form-field-fluid">
+            <mat-label *ngIf="!isReviewPage">Source Locale</mat-label>
+            <mat-label *ngIf="isReviewPage"> Locale</mat-label>
+            <mat-select
+              [ngModel]="sourceLocale"
+              [disabled]="isLoading"
+              (ngModelChange)="resetDestLocales($event)"
+              (selectionChange)="onLocaleChange()"
+              required
+            >
+             
+              <input class="border-0 border-style" (keydown)="filterOptions($event.target.value); $event.stopPropagation();" placeholder="Search ..."> 
+              <mat-option
+                *ngFor="let locale of filteredLocales"
+                [value]="locale.regionCode"
+              >
+                {{ locale.regionName }} ({{ locale.regionCode }})
+              </mat-option>
+            </mat-select>
+            <mat-hint align="start">
+              <strong>Translate</strong> content from Locale
+            </mat-hint>
+          </mat-form-field>
+        </div>
+
+        <div class="col-md-3 not-review-dropdown kt-margin-bottom-10-mobile" *ngIf="!isReviewPage">
+          <mat-form-field class="mat-form-field-fluid">
+            <mat-label>Destination Locale</mat-label>
+            <mat-select
+              [(ngModel)]="destLocale"
+              [disabled]="isLoading || !sourceLocale"
+              (selectionChange)="onLocaleChange()"
+              required
+            >
+             
+              <input class="border-0 border-style" placeholder="Search ..." (keydown)="destFilterOptions($event.target.value); $event.stopPropagation();"> 
+              <mat-option
+              *ngFor="let locale of destFilteredLocales"
+              [value]="locale.regionCode"
+            >
+                {{ locale.regionName }} ({{ locale.regionCode }})
+              </mat-option>
+            </mat-select>
+            <mat-hint align="start">
+              <strong>Translate</strong> content to Locale
+            </mat-hint>
+          </mat-form-field>
+        </div>
+
+        <div class="col-md-5 kt-margin-bottom-10-mobile" *ngIf="!isReviewPage">
+          <div class="button-container custom-translate-btn">
+            <button
+              mat-raised-button
+              color="primary"
+              [matTooltip]="'Translates selected entries from table'"
+              aria-label="Translate"
+              (click)="translate()"
+              [disabled]="
+                !sourceLocale ||
+                !isFetched ||
+                !isSelected ||
+                !destLocale ||
+                !enableTranslate || !enableKeyTranslate
+              "
+              [hidden]="!isFetched"
+            >
+              <fa-icon class="fa-2x" [icon]="faLanguage"></fa-icon> Translate
+            </button>
+            <button 
+            mat-raised-button
+            color="primary"
+            [matTooltip]="'Translates selected tags/models'"
+            aria-label="Translate"
+            (click)="startTranslationByTags()"
+            [disabled]="
+              allSelected.length !== 0 || 
+              (this.tagForm.value.contentModels.length > 0 && 
+              (this.tagForm.value.tags.length > 0 || this.tagForm.value.extags.length > 0)) || 
+              (
+                (this.tagForm.value.contentModels.length === 0 && 
+                this.tagForm.value.tags.length === 0 && 
+                this.tagForm.value.extags.length === 0)
+              ) ||
+              this.tagForm.value.contentModels.length > 5
+            "
+            [hidden]="!isFetched"
+          >
+            Translate & submit for review
+          </button>
+
+            <button
+              mat-raised-button
+              color="primary"
+              [matTooltip]="'Upload to Contentful'"
+              aria-label="Translate"
+              (click)="update()"
+              [disabled]="
+                !enableUpdate || allSelected.length === 0
+              "
+              [hidden]="!isFetched"
+              class="upload-button"
+            >
+        
+              <mat-icon class="Upload" [ngClass]="{ disabled: !enableUpdate }">
+                <span class="button-content">
+                  <img
+                    src="../../../../../../assets/images/imageContentful.png"
+                    alt="Upload Icon"
+                    class="upload-icon"
+                  />
+                  cloud_upload
+                </span>
+              </mat-icon>
+            </button>
+
+            <button
+              mat-raised-button
+              *ngIf="translationRole === 'contentManager' && !isReviewPage"
+              color="primary"
+              [disabled]="
+              selection?.selected?.length === 0 || (!reviewerSubmit && !enableReviewer)
+            "
+            [hidden]="!isFetched"
+              (click)="submitReviewer()"
+            >
+              Submit To Reviewer
+            </button>
+          </div>
+        </div>
+
+        <div class="col-md-3 kt-margin-bottom-10-mobile" *ngIf="isReviewPage">
+          <div class="button-container">
+            <button
+              mat-raised-button
+              color="primary"
+              aria-label="Translate"
+              (click)="update()"
+              [disabled]="!destLocale || !isFetched || !isSelected || this.translationRole==='contentManager'"
+              [hidden]="!isFetched"
+            >
+              <fa-icon class="fa-2x" [icon]="faLanguage"></fa-icon> Update
+            </button>
+
+            <button
+              mat-raised-button
+              color="primary"
+              [matTooltip]="'Approve'"
+              aria-label="Approve"
+              (click)="approveMessages()"
+              [disabled]="!sourceLocale || !isFetched || !isSelected || this.translationRole==='contentManager'"
+              [hidden]="!isFetched"
+              class="upload-button"
+            >
+              Approve
+            </button>
+          </div>
+        </div>
+      </div>
+      <br />
+      <div class="row align-items-center filter-margin ml-2 mt-4"  [hidden]="!isFetched">
+        <div class="col-md-9 kt-margin-bottom-10-mobile d-flex flex-wrap" [hidden]="!isFetched">
+          <form class="login d-flex flex-wrap w-100" name="form" [formGroup]="tagForm">
+            <div class="col-md-3">
+              <mat-form-field class="mat-form-field-fluid mb-3 w-100">
+                <mat-label *ngIf="!isReviewPage">Include Tags</mat-label>
+                <mat-label *ngIf="isReviewPage">Tags</mat-label>
+                <mat-select *ngIf="!isReviewPage" formControlName="tags" multiple (selectionChange)="onSelectionChange()">
+                  <input class="border-0 border-style" (keydown)="tagFilterOptions($event.target.value); $event.stopPropagation();" placeholder="Search ...">
+                  <mat-option #allTagSelected (click)="tossleTagSelection()" [value]="0">All</mat-option>
+                  <mat-option [value]="item.sys.id" *ngFor="let item of filteredTags" (click)="setIncludedTags(item.sys.id)">{{ item.name }}</mat-option>
+                </mat-select>
+                <mat-select  *ngIf="isReviewPage" formControlName="tags" multiple (selectionChange)="onSelectionChange()">
+                  <input class="border-0 border-style" (keydown)="tagFilterOptions($event.target.value); $event.stopPropagation();" placeholder="Search ...">
+                  <mat-option #allTagSelected (click)="tossleTagSelection()" [value]="0">All</mat-option>
+                  <mat-option [value]="item.sys.id" *ngFor="let item of filteredTags">{{ item.name }}</mat-option>
+                </mat-select>
+                <mat-hint *ngIf="!isReviewPage" align="start">
+                  Include Tags
+                </mat-hint>
+                <mat-hint *ngIf="isReviewPage" align="start">
+                  Tags
+                </mat-hint>
+              </mat-form-field>
+            </div>
+            <div class="col-md-3" *ngIf="!isReviewPage">
+              <mat-form-field class="mat-form-field-fluid mb-3 w-100">
+                <mat-label>Exclude Tags</mat-label>
+                <mat-select formControlName="extags" multiple (selectionChange)="onSelectionChange()">
+                  <input class="border-0 border-style" (keydown)="extagFilterOptions($event.target.value); $event.stopPropagation();" placeholder="Search ...">
+                  <mat-option #allexTagSelected (click)="tossleExTagSelection()" [value]="0">All</mat-option>
+                  <mat-option [value]="item.sys.id" *ngFor="let item of exfilteredTags" (click)="setExcludedTags(item.sys.id)">{{ item.name }}</mat-option>
+                </mat-select>
+                <mat-hint align="start">
+                  Exclude Tags
+                </mat-hint>
+              </mat-form-field>
+            </div>
+            <div class="col-md-3">
+              <mat-form-field class="mat-form-field-fluid mb-3 w-100">
+                <mat-label>Content Models</mat-label>
+                <mat-select formControlName="contentModels" multiple (selectionChange)="onSelectionChange()">
+                  <input class="border-0 border-style" (keydown)="modelFilterOptions($event.target.value); $event.stopPropagation();" placeholder="Search ...">
+                  <p *ngIf="isReviewPage">
+                    <mat-option [value]="item.modelName" *ngFor="let item of filteredModel" >{{ item.modelName }}</mat-option>
+                  </p>
+                  <p *ngIf="!isReviewPage">
+                    <mat-option [value]="item.modelId" *ngFor="let item of filteredModel" >{{ item.modelName }}</mat-option>
+                  </p>
+                </mat-select>
+                <mat-hint align="start">
+                  Content Models
+                </mat-hint>
+              </mat-form-field>
+            </div>
+
+            <div class="col-md-3 " [hidden]="!isFetched">
+              <mat-form-field class="mat-form-field-fluid">
+                <input
+                  matInput
+                  formControlName="searchValueInput"
+                 
+                  [disabled]="!sourceLocale || !destLocale || isLoading"
+                  placeholder="By Content"
+                />
+                <mat-hint align="start"> Enter more than 3 characters </mat-hint>
+              </mat-form-field>
+            </div>
+          </form>
+        </div>
+        <div class="col-md-3 kt-margin-bottom-10-mobile">
+          <div class="button-container">
+            <button class="pt-3 pb-3"
+              mat-raised-button
+              color="primary"
+              (click)="performSearch([],'search')"
+              [disabled]="!this.tagForm.value.contentModels.length &&
+              !this.tagForm.value.tags.length &&
+              !this.tagForm.value.extags.length && !this.tagForm.value.searchValueInput" 
+              [hidden]="!isFetched"
+            >
+              <fa-icon class="fa-1x" [icon]="faSearch"></fa-icon>
+              Search
+            </button>
+          </div>
+        </div>
+      </div>      
+  
+    </div>
+    <div *ngIf="showTable">
+      <kt-translate-table
+        [dataSource]="dataSource"
+        [destLocale]="destLocale"
+        [sourceLocale]="sourceLocale"
+        (getAllSelected)="getSelected($event)"
+        (reviewerUpdate)="submitReviewer($event)"
+        (pageChanged)="loadMore($event)"
+        [onTranslate]="onTranslate"
+        [totalCount]="totalCount"
+        [storedPageIndex]="storedPageIndex"
+        [pageSize]="pageSize"
+        [selection]="selection"
+        [translationRole]="translationRole"
+        [isReviewPage]="isReviewPage"
+        [enableHeader]="enableHeader"
+      ></kt-translate-table>
+    </div>
+    <div class="loader-container" *ngIf="isLoading || intervalLoading">
+      <mat-card class="loader-container-card">
+        <mat-progress-spinner
+          color="primary"
+          diameter="40"
+          strokeWidth="1"
+          mode="indeterminate"
+        >
+        </mat-progress-spinner>
+      </mat-card>
+    </div>
+  </kt-portlet-body>
+</kt-portlet>

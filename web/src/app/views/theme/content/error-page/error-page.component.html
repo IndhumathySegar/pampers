@@ -1,0 +1,7 @@
+<div style="display: flex;justify-content: center;align-items: center;height: 50vh;flex-direction: column;">
+	<h4>Looks like you don't have permission to access for requested page, {{ accessUrl }}</h4>
+	<h4>Please, contact administrator</h4>
+	<a (click)="redirect()" *ngIf="userToken" style="cursor: pointer;">
+		<h4>Go Home</h4>
+	</a>
+</div>

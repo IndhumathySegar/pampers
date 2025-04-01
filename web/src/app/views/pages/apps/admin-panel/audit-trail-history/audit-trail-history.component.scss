@@ -1,0 +1,63 @@
+.border-style {
+    width: 100%;
+    padding: 10px 15px;
+
+    &:focus-visible {
+        outline: none;
+    }
+}
+
+tr.example-element-row:not(.example-expanded-row):hover {
+    background: whitesmoke;
+  }
+  
+  tr.example-element-row:not(.example-expanded-row):active {
+    background: #efefef;
+  }
+  
+  .example-element-row td {
+    border-bottom-width: 0;
+  }
+  
+  .example-element-detail {
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    text-align: center;
+  } 
+  
+  tr.example-detail-row {
+    height: 0;
+  }
+
+  .example-element-error{
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .example-element-error table {
+    border-collapse: collapse;
+    border-radius: 5px;
+    width: 100%;
+    margin: 10px;
+  }
+  
+  .example-element-error th,
+  .example-element-error td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+  }
+  
+  .example-element-error th {
+    background-color: #f2f2f2;
+  }
+  
+  .error-message {
+    border: 1px solid;
+    border-radius: 5px;
+    padding: 10px;
+    margin: 10px;
+  }

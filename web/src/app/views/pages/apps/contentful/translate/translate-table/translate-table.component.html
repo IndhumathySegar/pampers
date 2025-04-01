@@ -1,0 +1,253 @@
+<div class="mat-elevation-z0" style="overflow-x: auto;">
+  <ng-container *ngIf="dataSource?.data?.length > 0">
+    <!-- Common Table Header -->
+    <table mat-table [dataSource]="dataSource" class="translate-tables">
+      <tr mat-header-row *matHeaderRowDef="displayedColumns" style=" background-color: #adadad44;"></tr>
+      <ng-container matColumnDef="select">
+        <th mat-header-cell *matHeaderCellDef style="width: 5%; padding-left: 10px;">
+          <mat-checkbox
+          [checked]="headerCheckboxState"
+          (change)="toggleHeaderSelection()">
+        </mat-checkbox>
+          <!-- Select -->
+        </th>
+      </ng-container>
+
+      <!-- Content model name Column -->
+      <ng-container matColumnDef="contentModelName">
+        <th mat-header-cell *matHeaderCellDef>Content Model</th>
+      </ng-container>
+
+      <!-- Key Column -->
+      <ng-container matColumnDef="label">
+        <th mat-header-cell *matHeaderCellDef>Entry Title</th>
+      </ng-container>
+      <!-- Key Column -->
+      <ng-container matColumnDef="key"  *ngIf="!isReviewPage">
+        <th mat-header-cell *matHeaderCellDef style="text-align:center !important">Field Name</th>
+      </ng-container>
+
+      <ng-container matColumnDef="key"  *ngIf="isReviewPage">
+        <th mat-header-cell *matHeaderCellDef style="text-align:center !important; width: 23% !important;">Field Name</th>
+      </ng-container>
+
+      <!-- Source Value Column -->
+      <ng-container matColumnDef="value" *ngIf="!isReviewPage">
+        <th mat-header-cell *matHeaderCellDef style="width: 19% !important;">
+          Source Value ({{ sourceLocale }})
+        </th>
+      </ng-container>
+
+      <ng-container matColumnDef="sourceValue" *ngIf="isReviewPage">
+        <th mat-header-cell *matHeaderCellDef style = "width: 14% !important;">Original Content</th>
+      </ng-container>
+
+      <!-- Translated Value Column -->
+      <ng-container matColumnDef="translatedValue" *ngIf="!isReviewPage" >
+        <th mat-header-cell *matHeaderCellDef style = "width: 20% !important;">
+            Translated Value ({{ destLocale }})
+          <p style = "line-height: 1.2; font-size: 10px !important;">
+             <b>Content has been translated by
+              Artificial Intelligence (AI).</b> 
+          </p>
+        </th>
+      </ng-container>
+
+      <!-- Translated Value Column -->
+      <ng-container matColumnDef="translateValue" *ngIf="isReviewPage">
+    
+        <th mat-header-cell *matHeaderCellDef style="width: 14% !important;">
+          
+            Translated Content ({{ destLocale }})
+        
+          <p style="line-height: 1.2; font-size: 10px !important;">
+            <b> Content has been translated by
+              Artificial Intelligence (AI).</b>
+          </p>
+        </th>
+      </ng-container>
+
+      <!-- Translated Value Column -->
+      <ng-container matColumnDef="replacedValue" *ngIf="isReviewPage" >
+        <th mat-header-cell *matHeaderCellDef class = "final-ai-text" style="width: 34%;">
+          Final Content({{ destLocale }})
+        </th>
+      </ng-container>
+
+      <ng-container matColumnDef="replaceValue" *ngIf="isReviewPage">
+        <th mat-header-cell *matHeaderCellDef style="white-space: nowrap;">
+          Edit Content ({{ destLocale }})
+          <span
+            class="info-icon"
+            matTooltip="`You can either rewrite the translation from scratch or copy/paste it here from the Translated Content column and edit directly whatever you need. After you click 'Update Content' it will be considered 'Final Content' and you need to give a final approval in when clicking 'Approve'`"
+            matTooltipPosition="above"
+            >i</span
+          >
+        </th>
+      </ng-container>
+    </table>
+
+    <!-- Accordion Groups -->
+    <div *ngFor="let group of groupedData | keyvalue; let i = index">
+      <div class="showTab">
+        <mat-checkbox style="margin: 12px;"
+        [checked]="areAllRowsSelected(group.key)" 
+        (change)="toggleAllRowsSelection(group.key)">
+       
+      </mat-checkbox>
+      <button class="accordion" (click)="clickExpand(group)">
+      
+        {{ group.key }}
+        <mat-icon class="accordion-arrow" [ngClass]="{'expanded': !group.value.expanded && group.value.expanded != false ? true : group.value.expanded}">expand_more</mat-icon>
+      </button>
+      </div>
+       
+      <div class="panel" [ngClass]="{'active': !group.value.expanded && group.value.expanded != false ? true : group.value.expanded}">
+
+        <table mat-table [dataSource]="group.value.data" class="translate-table">
+          <ng-container matColumnDef="select">
+            <td mat-cell *matCellDef="let element">
+              <div class="icon-checkbox-container">
+                <mat-checkbox 
+                  (click)="$event.stopPropagation()"
+                  (change)="onRowCheckboxChange($event, element)"
+                  [checked]="selection.isSelected(element)">
+                </mat-checkbox>
+                <mat-icon
+                class="Upload"
+                color="primary"
+                [matTooltip]="'Translated and ready to upload'"
+                [hidden]="
+                  !group.value.data.translatedValue || group.value.data.translatedValue.length === 0
+                "
+                >cloud_upload</mat-icon>   
+            </div>       
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="contentModelName">
+            <td mat-cell *matCellDef="let element">
+              <p class="text-wrap">{{ element.contentModelName }}</p>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="label">
+            <td mat-cell *matCellDef="let element">
+              <p class="text-wrap">{{ element.label }}</p>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="key">
+            <td mat-cell *matCellDef="let element">
+              <p class="text-wrap w-80">{{ element.key }}</p>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="value" *ngIf="!isReviewPage">
+            <td mat-cell *matCellDef="let element">
+              <div class="text-wrap" [innerHTML]="element.value"></div>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="sourceValue" *ngIf="isReviewPage">
+            <td mat-cell *matCellDef="let element">
+              <div class="text-wrap" [innerHTML]="element.value"></div>
+              ({{ element.sourceLocale }})
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="translatedValue" *ngIf="!isReviewPage">
+            <td mat-cell *matCellDef="let element; let i = index">
+              <div class="text-wrap" [innerHTML]="getObject(element)"></div>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="translateValue" *ngIf="isReviewPage">
+            <td mat-cell *matCellDef="let element; let i = index">
+              <div class="text-wrap" [innerHTML]="element.translateValue"></div>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="replacedValue" *ngIf="isReviewPage">
+            <td mat-cell *matCellDef="let element; let i = index">
+              <div class="text-wrap" [innerHTML]="element.replacedValue"></div>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="replaceValue" *ngIf="isReviewPage">
+            <td mat-cell *matCellDef="let element; let i = index">
+              <button *ngIf="element.type==='RichText'" (click)="updateReplacedValue(element, $event,element.type)" color="primary" mat-raised-button >Open Editor</button>
+              <textarea class = "textReview"
+                matInput
+                type="text"
+                [rows]="5"
+                placeholder="Type Replace value..."
+                *ngIf="element.type!=='RichText'" 
+                #replaceValue
+                (input)="updateReplacedValue(element, $event)"
+                [attr.maxlength]="element.charLimit ? element.charLimit : null"
+                [ngClass]="{'red-border': element.characterCount >= element.charLimit}"            
+                style="width: 200px; word-break: break-all; text-align: left; border: 1px solid #d8dce6; padding: 0;"           
+              ></textarea>
+              <div *ngIf="element.charLimit && element.type!=='RichText'">
+                <span [ngClass]="{'red-text': element.characterCount >= element.charLimit}">
+                  <p *ngIf=" element.characterCount >= element.charLimit">*Limit Reached</p>
+                  {{ element.characterCount }}/{{ element.charLimit }} characters
+                </span>
+              </div>
+            </td>
+          </ng-container>
+
+          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+        </table>
+      </div>
+    </div>
+    <div class="pagination-container" [ngClass]="{'hidden': !isReviewPage}">
+      <p class="pagination-goinfo">Enter page number : 
+        <input 
+        class="manual-page" 
+        type="number" 
+        placeholder="" 
+        [(ngModel)]="goPageInput" 
+        (keyup.enter)="onManualPageChange($event)"
+        oninput="
+          this.value = this.value.replace(/[^0-9]/g, '').substring(0, 3);
+          if (this.value !== '' && (parseInt(this.value) < this.min || parseInt(this.value) > this.max)) {
+            this.value = Math.min(this.max, Math.max(this.min, parseInt(this.value)));
+          }"
+        min="1" 
+        [max]=totalPage>
+      </p>
+      <mat-paginator style-paginator 
+        showFirstLastButtons
+        [manualPageInput]="goPageInput"
+        [showTotalPages]="3"
+        [pageSize]="pageSize"
+        [length]="totalCount"
+        [pageIndex]="pageIndex"
+        (page)="onPageChanged($event)"
+        
+      
+      >
+      </mat-paginator>
+    </div>
+
+    <div class="pagination-container-translate"  [ngClass]="{'hidden': isReviewPage}">
+      <p class="pagination-info">Current Page: {{ pageIndex + 1 }}</p>
+      <mat-paginator
+        showFirstLastButtons
+        [pageSize]="pageSize"
+        [length]="totalCount"
+        [pageIndex]="pageIndex"
+        (page)="onPageChanged($event)"
+      >
+      </mat-paginator>
+    </div>
+
+  </ng-container>
+  <ng-container *ngIf="dataSource?.data?.length === 0">
+    <div class="no-records-container">
+      <p>No records found</p>
+    </div>
+  </ng-container>
+</div>

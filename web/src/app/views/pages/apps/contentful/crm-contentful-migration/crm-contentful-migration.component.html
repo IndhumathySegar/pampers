@@ -1,0 +1,137 @@
+<kt-portlet>
+  <kt-portlet-header [class]="'kt-portlet__head--lg'" style="padding: 0">
+    <ng-container ktPortletTitle>
+      <h5 class="kt-portlet__head-title">
+        <span>Migration</span>
+      </h5>
+    </ng-container>
+  </kt-portlet-header>
+  <kt-portlet-body>
+    <div class="kt-form kt-margin-b-30">
+      <div class="kt-form__filtration">
+        <div class="row">
+          <div class="col-md-4 kt-margin-bottom-10-mobile">
+            <form class="login" name="form" [formGroup]="migrationCRMForm" (ngSubmit)="migrationCRMForm.valid && migrationCRM()">
+              <div class="kt-form__control">
+                <h6>Projects</h6>
+                <mat-form-field class="mat-form-field-fluid mb-3">
+                  <mat-select [disabled]="isCRMSpaceLoading" formControlName="spaceId"
+                    (selectionChange)="getCRMEnvironments($event.value)">
+                    <mat-option value="{{ item.sys.id }}" *ngFor="let item of projectsCRM">{{ item.name }}</mat-option>
+                  </mat-select>
+                  <mat-hint *ngIf="isCRMSpaceLoading">Loading...</mat-hint>
+                </mat-form-field>
+
+                <h6>From Environment</h6>
+                <mat-form-field class="mat-form-field-fluid mb-3">
+
+                  <mat-select [disabled]="isCRMEnvironmentLoading" formControlName="fromEnvironmentId"
+                              (selectionChange)="getCRMTags($event.value)">
+                    <ng-container *ngFor="let item of environmentsCRM">
+
+                      <mat-option [value]="item.name" *ngIf="item.name !== 'master' && item.name !== 'crm-prod' && item.name!=='staging-backup' && item.name!=='crm-sit' && item.name!=='dev-crm-sit' && item.name!=='dev-crm-prod' && item.name!=='dev-crm-uat'">
+
+                        {{ item.name }}
+                      </mat-option>
+                     
+                    </ng-container>
+                  </mat-select>
+                  <mat-hint *ngIf="isCRMEnvironmentLoading">Loading...</mat-hint>
+                </mat-form-field>
+
+                <h6>To Environment</h6>
+                <mat-form-field class="mat-form-field-fluid mb-3">
+                  <mat-select formControlName="toEnvironmentId">
+                    <ng-container *ngFor="let item of toCRMEnvironments">
+                      <mat-option [value]="item.name" *ngIf="item.name!=='staging-backup' && item.name !== 'crm-sit' && item.name!=='dev-crm-sit' && item.name !== 'crm-uat' && item.name !== 'dev-crm-uat' && item.name!=='dev-crm-prod'">
+
+                        {{ item.name }}
+                      </mat-option>
+                     
+                    </ng-container>
+                 
+                  </mat-select>
+                  <mat-hint *ngIf="isCRMTagsLoading">Loading...</mat-hint>
+                </mat-form-field>             
+                              
+                <h6>
+                  Migration Filters 
+                  <span style="cursor: pointer;" matTooltip="Select the tags which are to be included or excluded from the migration."><strong>ⓘ</strong></span>
+                </h6>
+                <mat-form-field class="mat-form-field-fluid mb-3">
+                  <mat-label>Content Models</mat-label>
+                  <mat-select  formControlName="contentModels" multiple [disabled]="isCRMModelLoading" >
+                    <mat-option #allModelSelected (click)="tossleModelSelection()" [value]="0">All</mat-option>
+                    <mat-option [value]="item.modelId" *ngFor="let item of contentModelsCRM"
+                     >{{ item.modelName }}
+                    </mat-option>
+                  </mat-select>                  
+                  <mat-hint *ngIf="isCRMModelLoading">Loading...</mat-hint>
+                </mat-form-field>
+
+                <mat-form-field class="mat-form-field-fluid mb-3">
+                  <mat-label>Migration Locales</mat-label>
+                  <mat-select  formControlName="localesToMigrate" multiple [disabled]="isCRMModelLoading">
+                    <mat-option #allLocalesSelected (click)="tossleLocaleSelection()" [value]="0">All</mat-option>
+                    <mat-option [value]="item" *ngFor="let item of sourceCRMLocaleOptions"
+                    >{{ item }}
+                    </mat-option>
+                  </mat-select>                  
+                  <mat-hint *ngIf="isCRMModelLoading">Loading...</mat-hint>
+                </mat-form-field>
+                                                 
+                <mat-form-field class="mat-form-field-fluid mb-3">
+                  <mat-label>Include Tags</mat-label>
+                  <mat-select [disabled]="isCRMTagsLoading" formControlName="includeTags" multiple>
+                    <mat-option #allSelected (click)="toggleCRMAllSelection()" [value]="0">All</mat-option>
+                    <mat-option [value]="item.sys.id" *ngFor="let item of includeCRMTags"
+                      (click)="tossleCRMPerOne(allCRMSelected.viewValue)">{{ item.name }}
+                    </mat-option>
+                  </mat-select>                  
+                  <mat-hint *ngIf="isCRMTagsLoading">Loading...</mat-hint>
+                </mat-form-field>
+
+                <mat-form-field class="mat-form-field-fluid mb-3">
+                  <mat-label>Exclude Tags</mat-label>
+                  <mat-select [disabled]="isCRMTagsLoading" formControlName="excludeTags" multiple>
+                    <mat-option #allSelected2 (click)="toggleCRMAllSelection2()" [value]="0">All</mat-option>
+                    <mat-option [value]="item.sys.id" *ngFor="let item of excludeCRMTags"
+                      (click)="tossleCRMPerOne2(allCRMSelected2.viewValue)">{{ item.name }}
+                    </mat-option>
+                  </mat-select>
+                  <mat-hint *ngIf="isCRMTagsLoading">Loading...</mat-hint>
+                </mat-form-field>
+
+                
+                <span>
+                  <mat-form-field class="mat-form-field-fluid mb-3">
+                    <mat-label>Migration to  from Last Published Date</mat-label>
+                    <input matInput [matDatepicker]="migrateFromDatePicker" formControlName="migrateFromDate" readonly (click)="migrateFromDatePicker.open()">
+                    <mat-datepicker-toggle
+                    matSuffix
+                      [for]="migrateFromDatePicker"
+                      [disabled]="false"
+                    ></mat-datepicker-toggle>
+                    <mat-datepicker #migrateFromDatePicker [disabled]="false"></mat-datepicker>
+                  </mat-form-field>
+                </span>
+              
+
+                <div>
+                  <button mat-raised-button color="primary"
+                    [ngStyle]="{ 'cursor': migrationCRMForm.valid ? 'pointer' : 'not-allowed' }" type="submit"
+                    [disabled]="!migrationCRMForm.valid || !safeGet(permissionCRM, 'crmManagement.crmManagement:migration.crmManagement:migration:createMigration')">
+                    <mat-icon style="display: inline-block;"
+                      *ngIf="!safeGet(permissionCRM, 'crmManagement.crmManagement:migration.crmManagement:migration:createMigration')">
+                      lock</mat-icon>
+                    Migrate
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </kt-portlet-body>
+</kt-portlet>

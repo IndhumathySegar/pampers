@@ -1,0 +1,31 @@
+<div class="kt-portlet">
+    <div class="kt-portlet__head kt-portlet__head__custom">
+        <div class="kt-portlet__head-label">
+            <h3 class="kt-portlet__head-title"><b>Action Required: Accept P&G GenAI Terms & Conditions</b></h3>
+        </div>
+    </div>
+    <div style="padding: 25px; overflow: auto; height: 15rem;">
+        <p style="text-align: center;">To continue using ContentHub with P&G GenAl features, you must review and accept the P&G GenAl Terms & Conditions. These terms explain how Al technologies are used responsibly and securely in our platform.</p>
+        <br>
+        <a href = "https://pgone.sharepoint.com/sites/GenAI/SitePages/GenAI-Terms-&-Conditions.aspx" target="_blank" style="color: #0abb87;">[View Terms and Conditions]</a>
+        <br>
+        <br>
+        <p>*If you do not accept, your session will be ended.</p>
+    </div>
+    <div class="kt-portlet__foot kt-portlet__no-border kt-portlet__foot--fit">
+        <div class="kt-form__actions kt-form__actions--solid">
+            <div class="row text-center">
+                <div class="col-lg-12" style="padding: 10px;">
+                    <button type="button" mat-raised-button  class = "tc-submit"  (click)="onSubmit('yes')"
+                        matTooltip="Cancel changes" tabindex="5" style="background-color: #0abb87; color: #fff;margin-right: 15px">
+                        Accept and Continue
+                    </button>&nbsp;
+                    <button type="button" mat-raised-button  class = "tc-submit"  color="primary" (click)="onSubmit('no')"
+                        matTooltip="Save changes" style="background-color: #0abb87; color: #fff;margin-right: 15px">
+                        Decline and Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

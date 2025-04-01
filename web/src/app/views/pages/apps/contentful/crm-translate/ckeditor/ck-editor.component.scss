@@ -1,0 +1,17 @@
+.ms-5{
+    margin-left: 20px;
+
+}
+
+.ck-editor__editable p {
+    list-style-type: disc; /* or your preferred list style */
+}
+
+/* Example CSS for dropdown positioning */
+.cke_combo_cke_combo__styles {
+    position: absolute;
+    /* Adjust these values as needed */
+    top: 100%;
+    left: 0;
+    z-index: 1000; /* Ensure it's above other content */
+}

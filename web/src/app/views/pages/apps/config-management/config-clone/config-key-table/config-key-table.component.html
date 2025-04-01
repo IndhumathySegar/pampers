@@ -1,0 +1,35 @@
+<kt-portlet [ngClass]="{
+   'kt-portlet--body-progress kt-portlet--body-progress-overlay': isLoading
+ }">
+    <div *ngIf="categoryKeys.length !== 0">
+    <div class="py-2 mt-4">
+      <h5
+        class="text-center kt-form__heading-title kt-font-bold"
+        style="color: #48465b"
+      >
+        <mat-checkbox
+          (change)="selectAll($event.checked)"
+          [checked]="checkedState"
+        ></mat-checkbox>
+        {{ tableId }}
+      </h5>
+    </div>
+    <div>
+      <mat-selection-list
+        color="primary"
+        #allSelected
+        class="px-3"
+        (selectionChange)="selectionChange($event)"
+        [(ngModel)]="selected"
+      >
+        <mat-list-option
+          *ngFor="let key of categoryKeys; let idx = index;" checkboxPosition="before"
+          [value]="key.configKey"
+          style="display:inline-block; width:50%; text-align:left;"
+        >
+          {{key.configKey}}
+        </mat-list-option>
+      </mat-selection-list>
+    </div>
+  </div>
+</kt-portlet>

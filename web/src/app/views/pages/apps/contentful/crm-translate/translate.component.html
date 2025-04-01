@@ -1,0 +1,254 @@
+<kt-portlet
+  [ngClass]="{
+    'kt-portlet--body-progress kt-portlet--body-progress-overlay': isCRMLoading
+  }"
+>
+ 
+  <kt-portlet-body class="mx-2">
+    <div
+      class="kt-form__filtration kt-margin"
+      class="code-section"
+      [class.equal-padding]="isCrmScrolled"
+    >
+      <div class="row align-items-center filter-margin ml-2 mt-4">
+        <div class="col-md-3 not-review-dropdown kt-margin-bottom-10-mobile" *ngIf="!isCrmReviewPage">
+          <mat-form-field class="mat-form-field-fluid">
+            <mat-label>Select Project</mat-label>
+            <mat-select
+              [ngModel]="crmSpaceId"
+              (selectionChange)="getCrmEnvironments($event.value)"
+            >
+              <mat-option
+                value="{{ item.sys.id }}"
+                *ngFor="let item of crmProjects"
+                >{{ item.name }}</mat-option
+              >
+            </mat-select>
+            <mat-hint *ngIf="isCrmSpaceLoading">Loading...</mat-hint>
+            <mat-hint align="start" *ngIf="!isCrmSpaceLoading">
+              <strong>Select</strong> space for translation
+            </mat-hint>
+          </mat-form-field>
+        </div>
+        <div class="col-md-3 not-review-dropdown kt-margin-bottom-10-mobile">
+          <mat-form-field class="mat-form-field-fluid">
+            <mat-label *ngIf="!isCrmReviewPage">Source Locale</mat-label>
+            <mat-label *ngIf="isCrmReviewPage"> Locale</mat-label>
+            <mat-select
+              [ngModel]="sourceCRMLocale"
+              [disabled]="isCRMLoading"
+              (ngModelChange)="resetDestCRMLocales($event)"
+              (selectionChange)="onCrmLocaleChange()"
+              required
+            >
+             
+              <input class="border-0 border-style" (keydown)="filterCrmOptions($event.target.value)" placeholder="Search ..."> 
+              <mat-option
+                *ngFor="let locale of filteredCrmLocales"
+                [value]="locale.regionCode"
+              >
+                {{ locale.regionName }} ({{ locale.regionCode }})
+              </mat-option>
+            </mat-select>
+            <mat-hint align="start">
+              <strong>Translate</strong> content from Locale
+            </mat-hint>
+          </mat-form-field>
+        </div>
+
+        <div class="col-md-3 not-review-dropdown kt-margin-bottom-10-mobile" *ngIf="!isCrmReviewPage">
+          <mat-form-field class="mat-form-field-fluid">
+            <mat-label>Destination Locale</mat-label>
+            <mat-select
+              [(ngModel)]="destCRMLocale"
+              [disabled]="isCRMLoading || !sourceCRMLocale"
+              (selectionChange)="onCrmLocaleChange()"
+              required
+            >
+             
+              <input class="border-0 border-style" placeholder="Search ..." (keydown)="destFilterCrmOptions($event.target.value)"> 
+              <mat-option
+              *ngFor="let locale of destFilteredCrmLocales"
+              [value]="locale.regionCode"
+            >
+                {{ locale.regionName }} ({{ locale.regionCode }})
+              </mat-option>
+            </mat-select>
+            <mat-hint align="start">
+              <strong>Translate</strong> content to Locale
+            </mat-hint>
+          </mat-form-field>
+        </div>
+
+        <div class="col-md-5 kt-margin-bottom-10-mobile" *ngIf="!isCrmReviewPage">
+          <div class="button-container custom-translate-btn">
+            <button
+              mat-raised-button
+              color="primary"
+              aria-label="Translate"
+              (click)="crmTranslate()"
+              [disabled]="
+                !sourceCRMLocale ||
+                !isCRMFetched ||
+                !isCRMSelected ||
+                !destCRMLocale ||
+                !enableCRMTranslate || !enableCrmKeyTranslate
+              "
+              [hidden]="!isCRMFetched"
+            >
+              <fa-icon class="fa-2x" [icon]="crmFaLanguage"></fa-icon> Translate
+            </button>
+
+            <button
+              mat-raised-button
+              color="primary"
+              [matTooltip]="'Upload to Contentful'"
+              aria-label="Translate"
+              (click)="updateCrm()"
+              [disabled]="
+                (!isCrmReviewPage && !enableCRMUpdate) || allCrmSelected.length === 0
+              "
+              [hidden]="!isCRMFetched"
+              class="upload-button"
+            >
+              <mat-icon class="Upload" [ngClass]="{ disabled: !enableCRMUpdate }">
+                <span class="button-content">
+                  <img
+                    src="../../../../../../assets/images/imageContentful.png"
+                    alt="Upload Icon"
+                    class="upload-icon"
+                  />
+                  cloud_upload
+                </span>
+              </mat-icon>
+            </button>
+            <button
+                mat-raised-button
+                *ngIf="crmTranslationRole === 'contentManager' && !isCrmReviewPage && crmDevEnvironment!=='us-prod' && crmDevEnvironment!=='prod'"
+                color="primary"
+                [disabled]="
+                crmSelection?.selected?.length === 0 || (!crmReviewerSubmit && !enableCrmReviewer)
+              "
+              [hidden]="!isCRMFetched"
+                (click)="submitCrmReviewer()"
+          >
+            Submit To Reviewer
+          </button>
+          </div>
+        </div>
+
+        <div class="col-md-3 kt-margin-bottom-10-mobile" *ngIf="isCrmReviewPage">
+          <div class="button-container">
+            <button
+              mat-raised-button
+              color="primary"
+              aria-label="Translate"
+              (click)="updateCrm()"
+              [disabled]="!destCRMLocale || !isCRMFetched || !isCRMSelected || crmTranslationRole==='contentManager'"
+              [hidden]="!isCRMFetched"
+            >
+              <fa-icon class="fa-2x" [icon]="crmFaLanguage"></fa-icon> Update
+            </button>
+
+            <button
+              mat-raised-button
+              color="primary"
+              [matTooltip]="'Approve'"
+              aria-label="Approve"
+              (click)="approveCrmMessages()"
+              [disabled]="!sourceCRMLocale || !isCRMFetched || !isCRMSelected || crmTranslationRole==='contentManager'"
+              [hidden]="!isCRMFetched"
+              class="upload-button"
+            >
+              Approve
+            </button>
+          </div>
+        </div>
+      </div>
+      <br />
+      <div class="row align-items-center filter-margin ml-2 mt-4">
+        <div class="col-md-3 kt-margin-bottom-10-mobile" [hidden]="!isCRMFetched">
+          <mat-form-field class="mat-form-field-fluid">
+            <input
+              matInput
+              [(ngModel)]="searchCrmInput"
+              (keyup.enter)="searchCrmInput.length > 3 ? performCrmSearch() : null"
+              (input)="searchCrmInput.length === 0 ? performCrmSearch() : null"
+              [disabled]="!sourceCRMLocale || !destCRMLocale || isCRMLoading"
+              placeholder="Search using tag ID"
+            />
+            <mat-hint align="start"> Enter more than 3 characters </mat-hint>
+          </mat-form-field>
+        </div>
+
+        <div class="col-md-3 kt-margin-bottom-10-mobile" [hidden]="!isCRMFetched">
+          <mat-form-field class="mat-form-field-fluid">
+            <input
+              matInput
+              [(ngModel)]="crmSearchValueInput"
+              (keyup.enter)="crmSearchValueInput.length > 3 ? performCrmSearch() : null"
+              (input)="crmSearchValueInput.length === 0 ? performCrmSearch() : null"
+              [disabled]="!sourceCRMLocale || !destCRMLocale || isCRMLoading"
+              placeholder="Search using source value"
+            />
+            <mat-hint align="start"> Enter more than 3 characters </mat-hint>
+          </mat-form-field>
+        </div>
+
+        <div class="col-md-3 kt-margin-bottom-10-mobile">
+          <div class="button-container">
+            <button
+              mat-raised-button
+              color="primary"
+              (click)="performCrmSearch()"
+              [disabled]="
+                !sourceCRMLocale ||
+                !destCRMLocale ||
+                ((!searchCrmInput ||
+                crmSearchValueInput) && (searchCrmInput ||
+                !crmSearchValueInput)) && (!searchCrmInput && !crmSearchValueInput) ||
+                
+                (searchCrmInput.length <= 3 &&
+                crmSearchValueInput.length<=3)||
+                isCRMLoading
+              "
+              [hidden]="!isCRMFetched"
+            >
+              <fa-icon class="fa-1x" [icon]="crmFaSearch"></fa-icon>
+              Search
+            </button>
+          </div>
+        </div>
+      </div>
+  
+    </div>
+    <div *ngIf="showCRMTable">
+      <kt-crm-translate-table
+        [crmDataSource]="crmDataSource"
+        [destCRMLocale]="destCRMLocale"
+        [sourceCRMLocale]="sourceCRMLocale"
+        (getAllSelectedCrm)="getCrmSelected($event)"
+        (crmReviewerUpdate)="submitCrmReviewer($event)"
+        (crmPageChanged)="loadMoreCrm($event)"
+        [onCRMTranslate]="onCRMTranslate"
+        [totalCrmCount]="totalCrmCount"
+        [crmStoredPageIndex]="crmStoredPageIndex"
+        [CRMPageSize]="CRMPageSize"
+        [crmSelection]="crmSelection"
+        [isCrmReviewPage]="isCrmReviewPage"
+        [crmTranslationRole]="crmTranslationRole"
+      ></kt-crm-translate-table>
+    </div>
+    <div class="loader-container" *ngIf="isCRMLoading || crmIntervalLoading">
+      <mat-card class="loader-container-card">
+        <mat-progress-spinner
+          color="primary"
+          diameter="40"
+          strokeWidth="1"
+          mode="indeterminate"
+        >
+        </mat-progress-spinner>
+      </mat-card>
+    </div>
+  </kt-portlet-body>
+</kt-portlet>

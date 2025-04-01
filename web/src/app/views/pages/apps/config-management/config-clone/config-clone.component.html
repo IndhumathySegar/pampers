@@ -1,0 +1,285 @@
+<kt-portlet [ngClass]="{
+   'kt-portlet--body-progress kt-portlet--body-progress-overlay': isLoading
+ }">
+  <kt-portlet-header [class]="'kt-portlet__head--lg'" style="padding: 0">
+    <ng-container ktPortletTitle>
+      <h5 class="kt-portlet__head-title">
+        <span>Source</span>
+      </h5>
+    </ng-container>
+  </kt-portlet-header>
+
+  <div class="kt-form kt-margin-b-10">
+    <div class="kt-form__filtration kt-margin">
+      <form name="form" [formGroup]="fromCloneConfigForm">
+        <div class="row align-items-center filter-margin">
+          <div class="col-md-3 kt-margin-bottom-10-mobile">
+            <mat-form-field class="mat-form-field-fluid">
+              <mat-label>Locale</mat-label>
+              <mat-select [disabled]="!localeFetched" formControlName="locale" (selectionChange)="getConfig(fromCloneConfigForm)">
+                <mat-option *ngFor="let version of locales; let idx = index;" [value]="version.toString().toLowerCase()">{{version}}</mat-option>
+              </mat-select>
+<!--              <mat-select formControlName="locale">-->
+<!--                <mat-option value="us">NARBU-US</mat-option>-->
+<!--                <mat-option value="ca">NARBU-CA</mat-option>-->
+<!--                <mat-option value="es">EURBU-ES</mat-option>-->
+<!--                <mat-option value="uk">EURBU-UK</mat-option>-->
+<!--                <mat-option value="fr">EURBU-FR</mat-option>-->
+<!--                <mat-option value="de">DE</mat-option>-->
+<!--                <mat-option value="jp">JP</mat-option>-->
+<!--                <mat-option value="br">NARBU-BR</mat-option>-->
+<!--              </mat-select>-->
+              <mat-error *ngIf="fromCloneConfigForm.controls['locale'].hasError('required')">
+                *Required
+              </mat-error>
+              <mat-hint align="start">
+                <strong>Filter</strong> by Market
+              </mat-hint>
+            </mat-form-field>
+          </div>
+
+          <div class="col-md-3 kt-margin-bottom-10-mobile">
+            <mat-form-field class="mat-form-field-fluid">
+              <mat-label>Environments</mat-label>
+              <mat-select [disabled]="!envFetched" formControlName="envs" (selectionChange)="getConfig(fromCloneConfigForm)">
+                <mat-option *ngFor="let version of envs; let idx = index;" [value]="version.toString().toLowerCase()">{{version}}</mat-option>
+              </mat-select>
+<!--              <mat-select formControlName="envs">-->
+<!--                <mat-option value="prod">Prod</mat-option>-->
+<!--                <mat-option value="qa">QA</mat-option>-->
+<!--                <mat-option value="uat">UAT</mat-option>-->
+<!--                <mat-option value="sit">SIT</mat-option>-->
+<!--                <mat-option value="staging">Staging</mat-option>-->
+<!--                <mat-option value="dev">Dev</mat-option>-->
+<!--              </mat-select>-->
+              <mat-error *ngIf="fromCloneConfigForm.controls['envs'].hasError('required')">
+                *Required
+              </mat-error>
+              <mat-hint align="start">
+                <strong>Filter by</strong> Environments
+              </mat-hint>
+            </mat-form-field>
+          </div>
+
+          <div class="col-md-3" style="
+              display: grid;
+              grid-template-columns: 1fr 1fr 1fr;
+              grid-gap: 5px;
+            ">
+            <button
+              mat-raised-button
+              color="primary"
+              aria-label="Search"
+              type="submit"
+              (click)="getConfig(fromCloneConfigForm)"
+              [disabled]="
+                (fromCloneConfigForm.controls['locale'].hasError('required') ||
+                  fromCloneConfigForm.controls['envs'].hasError('required') ||
+                  isLoading
+                )"
+            >
+              <!-- Add Permission lock -->
+              <mat-icon style="display: inline-block;"
+                        *ngIf="
+                  (fromCloneConfigForm.controls['locale'].hasError('required') ||
+                    fromCloneConfigForm.controls['envs'].hasError('required')  ||
+                    isLoading
+                  )"
+              >
+                lock</mat-icon>
+              <fa-icon
+                [icon]="faSearch"
+                *ngIf="
+                  !(fromCloneConfigForm.controls['locale'].hasError('required') ||
+                    fromCloneConfigForm.controls['envs'].hasError('required') ||
+                    isLoading
+                  )"
+              >
+              </fa-icon> Search
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <kt-portlet-header *ngIf="enableToggle" [class]="'kt-portlet__head--lg'" style="padding: 0">
+    <ng-container ktPortletTitle>
+      <h5 class="kt-portlet__head-title">
+        <span>Destination</span>
+      </h5>
+    </ng-container>
+  </kt-portlet-header>
+
+  <div *ngIf="enableToggle" class="kt-form kt-margin-b-10">
+    <div class="kt-form__filtration kt-margin">
+      <form name="form" [formGroup]="toCloneConfigForm">
+        <div class="row align-items-center filter-margin">
+          <div class="col-md-3 kt-margin-bottom-10-mobile">
+            <mat-form-field class="mat-form-field-fluid">
+              <mat-label>Locale</mat-label>
+              <mat-select [disabled]="!localeFetched" formControlName="locale" (selectionChange)="saveLocale($event)">
+                <mat-option *ngFor="let version of locales; let idx = index;" [value]="version.toString().toLowerCase()">{{version}}</mat-option>
+              </mat-select>
+<!--              <mat-select-->
+<!--                (selectionChange)="saveLocale($event)"-->
+<!--                formControlName="locale"-->
+<!--              >-->
+<!--                <mat-option value="us">NARBU-US</mat-option>-->
+<!--                <mat-option value="ca">NARBU-CA</mat-option>-->
+<!--                <mat-option value="es">EURBU-ES</mat-option>-->
+<!--                <mat-option value="uk">EURBU-UK</mat-option>-->
+<!--                <mat-option value="fr">EURBU-FR</mat-option>-->
+<!--                <mat-option value="de">DE</mat-option>-->
+<!--                <mat-option value="jp">JP</mat-option>-->
+<!--                <mat-option value="br">NARBU-BR</mat-option>-->
+<!--              </mat-select>-->
+              <mat-error *ngIf="toCloneConfigForm.controls['locale'].hasError('required')">
+                *Required
+              </mat-error>
+              <mat-hint align="start">
+                <strong>Filter</strong> by Market
+              </mat-hint>
+            </mat-form-field>
+          </div>
+
+          <div class="col-md-3 kt-margin-bottom-10-mobile">
+            <mat-form-field class="mat-form-field-fluid">
+              <mat-label>Environments</mat-label>
+              <mat-select [disabled]="true" formControlName="envs" [(ngModel)]="fromCloneConfigForm.controls['envs'].value">
+                <mat-option
+                  *ngFor="let version of envs; let idx = index;"
+                  [value]="version.toString().toLowerCase()"
+                  [disabled]="fromCloneConfigForm.controls['envs'].value === version.toString().toLowerCase() && fromCloneConfigForm.controls['locale'].value === toCloneConfigForm.controls['locale'].value"
+                >
+                  {{version}}
+                </mat-option>
+              </mat-select>
+              <mat-error *ngIf="toCloneConfigForm.controls['envs'].hasError('required')">
+                *Required
+              </mat-error>
+              <mat-hint align="start">
+                <strong>Filter by</strong> Environments
+              </mat-hint>
+            </mat-form-field>
+          </div>
+
+          <div class="col-md-3" style="
+              display: grid;
+              grid-template-columns: 1fr 1fr 1fr;
+              grid-gap: 5px;
+            ">
+            <button
+              mat-raised-button
+              color="primary"
+              aria-label="Search"
+              type="submit"
+              (click)="cloneConfig(toCloneConfigForm)"
+              [disabled]="(!selected) ||
+                (fromCloneConfigForm.controls['envs'].value === toCloneConfigForm.controls['envs'].value  &&
+                fromCloneConfigForm.controls['locale'].value === toCloneConfigForm.controls['locale'].value)  ||
+                (toCloneConfigForm.controls['locale'].hasError('required') ||
+                  toCloneConfigForm.controls['envs'].hasError('required') ||
+                  isLoading
+                )"
+            >
+              <!-- Add Permission lock -->
+              <mat-icon
+                style="display: inline-block;"
+                *ngIf="
+                  (!isKeySelected) ||
+                  (toCloneConfigForm.controls['locale'].hasError('required') ||
+                    toCloneConfigForm.controls['envs'].hasError('required')  ||
+                    isLoading
+                  )"
+              >
+                lock</mat-icon>
+              <fa-icon
+                [icon]="faSearch"
+                *ngIf="
+                  (isKeySelected) &&
+                  !(toCloneConfigForm.controls['locale'].hasError('required') ||
+                    toCloneConfigForm.controls['envs'].hasError('required') ||
+                    isLoading
+                  )"
+              >
+              </fa-icon> Clone
+            </button>
+          </div>
+<!--          <div class="col-md-3" style="-->
+<!--            display: grid;-->
+<!--            grid-template-columns: 1fr 1fr 1fr;-->
+<!--            grid-gap: 5px;-->
+<!--          ">-->
+<!--&lt;!&ndash;            <mat-slide-toggle&ndash;&gt;-->
+<!--&lt;!&ndash;              *ngIf="!(toCloneConfigForm.controls['envs'].hasError('required') ||&ndash;&gt;-->
+<!--&lt;!&ndash;                      toCloneConfigForm.controls['locale'].hasError('required')||&ndash;&gt;-->
+<!--&lt;!&ndash;                      fromCloneConfigForm.controls['locale'].value === toCloneConfigForm.controls['locale'].value)"&ndash;&gt;-->
+<!--&lt;!&ndash;              color="primary"&ndash;&gt;-->
+<!--&lt;!&ndash;              class="mt-2"&ndash;&gt;-->
+<!--&lt;!&ndash;              (change)="toggle($event)"&ndash;&gt;-->
+<!--&lt;!&ndash;            >Update keys with locale</mat-slide-toggle>&ndash;&gt;-->
+<!--          </div>-->
+
+        </div>
+      </form>
+    </div>
+
+  </div>
+  <br />
+
+
+  <div *ngIf="!hideTable" class="kt-form kt-margin-b-10">
+    <div class="kt-form__filtration kt-margin">
+        <div class="row align-items-center filter-margin">
+          <div class="kt-margin-bottom-10-mobile">
+            <div
+      *ngIf="!allEmpty"
+      class="col-md-12"
+      style="
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+      grid-gap: 5px;"
+    >
+      <mat-card (click)="onSelectCard()" [ngClass]="{'card-selected mat-elevation-z4': selected}" class="example-card">
+        <mat-card-header>
+          <div mat-card-avatar class="example-header-image"></div>
+          <mat-card-title>Configs</mat-card-title>
+          <mat-card-subtitle>App Settings</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <ul>
+            <li *ngFor="let detail of details">{{ detail }}</li>
+          </ul>
+        </mat-card-content>
+      </mat-card>
+    </div>
+          </div>
+        </div>
+    </div>
+<!--    <div *ngFor="let tableName of category">-->
+<!--      <div *ngIf="keyMap[tableName].length !== 0" >-->
+<!--        <kt-config-key-table-->
+<!--          (isKeySelected)="buttonStatus($event)"-->
+<!--          [isLoading]="isLoading"-->
+<!--          [categoryKeys]="keyMap[tableName]"-->
+<!--          [tableId]="tableName"-->
+<!--          [toggled]="toggled"-->
+<!--        ></kt-config-key-table>-->
+<!--      </div>-->
+<!--    </div>-->
+  </div>
+
+  <div *ngIf="allEmpty">
+    <mat-card *ngIf="!isLoading" style="display: flex; justify-content: center; align-items: center">
+      <mat-card-content>
+        No Keys present in the Config Selected
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <mat-card *ngIf="isLoading" style="display: flex; justify-content: center; align-items: center">
+    <mat-progress-spinner color="primary" diameter="40" strokeWidth="1" mode="indeterminate">
+    </mat-progress-spinner>
+  </mat-card>
+</kt-portlet>

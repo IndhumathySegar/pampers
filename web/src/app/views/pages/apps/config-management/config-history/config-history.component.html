@@ -1,0 +1,149 @@
+<kt-portlet [ngClass]="{
+   'kt-portlet--body-progress kt-portlet--body-progress-overlay': isLoading
+ }">
+  <kt-portlet-header [class]="'kt-portlet__head--lg'" style="padding: 0">
+    <ng-container ktPortletTitle>
+      <div class="col-md-3 kt-margin-bottom-10-mobile">
+        <mat-form-field class="mat-form-field-fluid">
+          <mat-label>Environments</mat-label>
+          <mat-select [(value)]="selectedEnv" placeholder="Mode" (selectionChange)="onEnvChange($event)">
+            <mat-option value="prod">Prod</mat-option>
+            <mat-option value="nonprod">Non-Prod</mat-option>
+          </mat-select>
+<!--          <mat-error *ngIf="selectEnvForm.controls['envs'].hasError('required')">-->
+<!--            *Required-->
+<!--          </mat-error>-->
+          <mat-hint align="start">
+            <strong>Filter by</strong> Prod/Non-Prod
+          </mat-hint>
+        </mat-form-field>
+      </div>
+      <mat-tab-group class="ml-2" animationDuration="0ms" #tabGroup (selectedTabChange)="tabChanged($event)">
+        <mat-tab label="NARBU"></mat-tab>
+        <mat-tab label="EURBU"></mat-tab>
+        <mat-tab label="JP"></mat-tab>
+      </mat-tab-group>
+    </ng-container>
+
+  </kt-portlet-header>
+  <kt-portlet-body class="mx-2">
+    <ng-container *ngIf="!isLoading">
+      <div fxLayout fxLayoutAlign="left center">
+        <mat-form-field fxFlex="40%">
+          <input matInput type="text" (keyup)="doFilter($event.target.value)" placeholder="Filter">
+        </mat-form-field>
+      </div>
+
+      <table
+        mat-table
+        [dataSource]="dataSource"
+        matSort
+      >
+        <ng-container matColumnDef="env">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Env </th>
+          <td mat-cell *matCellDef="let element"> {{element.type.split('_')[3].toUpperCase()}} </td>
+        </ng-container>
+        <ng-container matColumnDef="locale">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Market </th>
+          <td mat-cell *matCellDef="let element"> {{element.locale}} </td>
+        </ng-container>
+        <ng-container matColumnDef="type">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Config </th>
+          <td mat-cell *matCellDef="let element"> {{element.type}} </td>
+        </ng-container>
+        <ng-container matColumnDef="provider">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> User Name </th>
+          <td mat-cell *matCellDef="let element"> {{element.provider}} </td>
+        </ng-container>
+        <ng-container matColumnDef="createdAt">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Creation Time </th>
+          <td mat-cell *matCellDef="let element"> {{element.createdAt | date: 'E dd-MM-yy HH:mm:ss' }} </td>
+        </ng-container>
+        <ng-container matColumnDef="updatedAt">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Update Time </th>
+          <td mat-cell *matCellDef="let element"> {{element.updatedAt | date: 'E dd-MM-yy HH:mm:ss' }} </td>
+        </ng-container>
+        <ng-container matColumnDef="rollBackBy">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Rolled Back By </th>
+          <td mat-cell *matCellDef="let element"> {{element.rollBackBy}} </td>
+        </ng-container>
+        <ng-container matColumnDef="rollBackAt">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header class="centre"> Roll Back At </th>
+          <td mat-cell *matCellDef="let element"> {{ element.rollBackAt | date: 'E dd-MM-yy HH:mm:ss' }} </td>
+        </ng-container>
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Status </th>
+          <td mat-cell *matCellDef="let element"> {{element.status}} </td>
+        </ng-container>
+        <ng-container matColumnDef="update">
+          <th mat-header-cell *matHeaderCellDef > Rollback </th>
+          <td mat-cell style="text-align: left" *matCellDef="let element; let idx = index">
+            <button
+              [hidden]="!isPermitted"
+              class="ml-5"
+              mat-icon-button
+              color="accent"
+              [disabled]="element.status === 'New Config' || element.status.includes('Cloned') || isRollingBack"
+              (click)="rollbackConfig(idx)">
+              <mat-icon style="display: inline-block;"
+                        *ngIf="isRollingBack"
+              >lock</mat-icon>
+              <fa-icon
+                class="mr-1"
+                style="display: inline-block; color:gray"
+                [icon]="faFile"
+                *ngIf="element.status === 'New Config' && !isRollingBack">
+              </fa-icon>
+              <fa-icon
+                class="mr-1"
+                style="display: inline-block; color:gray"
+                [icon]="faUndo"
+                *ngIf="!(element.status === 'New Config' || element.status.includes('Cloned')) && !isRollingBack">
+              </fa-icon>
+              <fa-icon
+                class="mr-1"
+                style="display: inline-block; color:gray"
+                [icon]="faCopy"
+                *ngIf="element.status.includes('Cloned') && !isRollingBack">
+              </fa-icon>
+            </button>
+            <button
+              [hidden]="isPermitted"
+              class="ml-5"
+              mat-icon-button
+              color="accent"
+              [disabled]="!isPermitted"
+            >
+              <mat-icon style="display: inline-block;"
+              >lock</mat-icon>
+            </button>
+            <fa-icon
+              matTooltip="Rolled Back at {{ element.rollBackAt | date: 'E dd-MM-yy HH:mm:ss' }}"
+              disabled="true"
+              style="display: inline-block; color:gray"
+              [icon]="faCheck"
+              *ngIf="element.status === 'RolledBack' && !isRollingBack">
+            </fa-icon>
+          </td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+    </ng-container>
+
+    <mat-paginator
+        #paginator
+        [hidden]="isLoading"
+        [hidePageSize]="false"
+        [length]="totalCount"
+        [pageSizeOptions]="[10, 50]"
+        [showFirstLastButtons]="false"
+        (page)="onPageChange($event)">
+    </mat-paginator>
+
+    <mat-card *ngIf="isLoading" style="display: flex; justify-content: center; align-items: center">
+      <mat-progress-spinner color="primary" diameter="40" strokeWidth="1" mode="indeterminate">
+      </mat-progress-spinner>
+    </mat-card>
+  </kt-portlet-body>
+</kt-portlet>

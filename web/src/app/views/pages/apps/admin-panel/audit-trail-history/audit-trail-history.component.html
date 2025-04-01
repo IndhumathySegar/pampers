@@ -1,0 +1,282 @@
+<kt-portlet>
+    <kt-portlet-body>
+        <div class="row align-items-center filter-margin ml-2 mt-4">
+            <div class="col-md-12 d-flex justify-content-end">
+                <button mat-raised-button color="primary" type="button" (click)="showFilter ? closeFilter($event) : openFilter()" class="d-flex align-items-center mr-2">
+                    <mat-icon style="cursor: pointer; margin-right: 5px;">filter_list</mat-icon> 
+                    Filter
+                    <mat-icon *ngIf="showFilter" style="cursor: pointer; margin-left: 10px;" (click)="closeFilter($event)">close</mat-icon>
+                </button>
+                <button mat-raised-button color="primary" type="button" class="d-flex align-items-center" (click) = "showPasswordDetails()">
+                    Export
+                    <mat-icon style="cursor: pointer; margin-right: 5px;">cloud_upload</mat-icon>
+                </button>
+            </div>
+        </div>
+        <div *ngIf = "showFilter" class="row align-items-center filter-margin ml-2 mt-4 align-work"  style="display: flex; align-items: center;">
+            <div class="col-xs-12 col-sm-6 col-md-4 col-lg-4 col-xl-3 not-review-dropdown kt-margin-bottom-10-mobile" style="display: flex; align-items: center;">
+                <mat-form-field>
+                    <!-- <input matInput placeholder="Search by from"> -->
+                    <input matInput [matDatepicker]="migrateFromDatePicker" readonly (click)="migrateFromDatePicker.open()" placeholder="From date"  [(ngModel)] = "fromDateFilter" [max]="toDateFilter"  (ngModelChange)="orgValueChange()">
+                    <mat-datepicker-toggle
+                    matSuffix
+                      [for]="migrateFromDatePicker"
+                      [disabled]="false"
+                    ></mat-datepicker-toggle>
+                    <mat-datepicker #migrateFromDatePicker [disabled]="false"></mat-datepicker>
+                </mat-form-field>
+                <mat-icon *ngIf = "fromDateFilter" style="cursor: pointer;" (click) = "clearFilter('fromDate')">close</mat-icon>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-4 col-lg-4 col-xl-3 not-review-dropdown kt-margin-bottom-10-mobile"  style="display: flex; align-items: center;">
+                <mat-form-field>
+                    <input matInput [matDatepicker]="migrateToDatePicker" readonly (click)="migrateToDatePicker.open()" placeholder="To date"  [(ngModel)] = "toDateFilter" [min]="fromDateFilter" (ngModelChange)="orgValueChange()">
+                    <mat-datepicker-toggle
+                    matSuffix
+                      [for]="migrateToDatePicker"
+                      [disabled]="false"
+                    ></mat-datepicker-toggle>
+                    <mat-datepicker #migrateToDatePicker [disabled]="false"></mat-datepicker>
+                </mat-form-field>
+                <mat-icon *ngIf = "toDateFilter" style="cursor: pointer;" (click) = "clearFilter('toDate')">close</mat-icon>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-4 col-lg-4 col-xl-3 not-review-dropdown kt-margin-bottom-10-mobile"  style="display: flex; align-items: center;">
+                <mat-form-field>
+                    <mat-select  placeholder = "Module"  [(ngModel)] = "moduleFilter">
+                        <input class="border-0 border-style" (keydown)="filterOptions($event.target.value, 'module'); $event.stopPropagation();"
+                        placeholder="Search ...">
+                        <mat-option *ngFor="let module of filteredModuleList" [value]="module.displayResourceName" (click)="moduleChange(module.displayResourceName)" (click) = "selectChange()">
+                            {{ module.displayResourceName }}
+                        </mat-option>
+                    </mat-select>
+                    <mat-hint align="start">
+                        Filter by: Module
+                    </mat-hint>
+                </mat-form-field>
+                <mat-icon *ngIf = "moduleFilter"  style="cursor: pointer;" (click) = "clearFilter('module')">close</mat-icon>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-4 col-lg-4 col-xl-3 not-review-dropdown kt-margin-bottom-10-mobile"  style="display: flex; align-items: center;">
+                <mat-form-field>
+                    <mat-select  placeholder = "Sub module" [(ngModel)] = "submoduleFilter">
+                        <input class="border-0 border-style" (keydown)="filterOptions($event.target.value, 'submodule'); $event.stopPropagation();"
+                        placeholder="Search ...">
+                        <mat-option *ngFor="let model of filteredSubmoduleList" [value]="model.displaySubResourceName" (click) = "selectChange()">
+                            {{ model.displaySubResourceName }}
+                        </mat-option>
+                    </mat-select>
+                    <mat-hint align="start">
+                        Filter by: Sub-Module
+                    </mat-hint>
+                </mat-form-field>
+                <mat-icon *ngIf = "submoduleFilter"  style="cursor: pointer;" (click) = "clearFilter('submodule')">close</mat-icon>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-4 col-lg-4 col-xl-3 not-review-dropdown kt-margin-bottom-10-mobile"  style="display: flex; align-items: center;">
+                <mat-form-field>
+                    <mat-select  placeholder = "UserId" [(ngModel)] = "userIdFilter">
+                        <input class="border-0 border-style" (keydown)="filterOptions($event.target.value, 'user'); $event.stopPropagation();"
+                        placeholder="Search ...">
+                        <mat-option *ngFor="let user of filteredUserIdList" [value]="user.email" (click) = "selectChange()">
+                             {{ user.email }}
+                        </mat-option>
+                    </mat-select>
+                    <mat-hint align="start">
+                        Filter by: User Id
+                    </mat-hint>
+                </mat-form-field>
+                <mat-icon *ngIf = "userIdFilter"  style="cursor: pointer;" (click) = "clearFilter('user')">close</mat-icon>
+            </div>        
+            <div class="col-xs-12 col-sm-6 col-md-4 col-lg-4 col-xl-3 not-review-dropdown kt-margin-bottom-10-mobile" style="display: flex; align-items: center;">
+                <mat-form-field>
+                    <mat-select  placeholder = "Role" [(ngModel)] = "roleFilter">
+                        <input class="border-0 border-style" (keydown)="filterOptions($event.target.value, 'role'); $event.stopPropagation();"
+                                            placeholder="Search ...">
+                        <mat-option *ngFor="let role of filteredRoleList" [value]="role.name" (click) = "selectChange()">
+                            {{ role.name }}
+                        </mat-option>
+                    </mat-select>
+                    <mat-hint align="start">
+                        Filter by: Role
+                    </mat-hint>
+                </mat-form-field>
+                <mat-icon *ngIf = "roleFilter"  style="cursor: pointer;" (click) = "clearFilter('role')">close</mat-icon>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-4 col-lg-4 col-xl-3 not-review-dropdown kt-margin-bottom-10-mobile" style="display: flex; align-items: center;">
+                <mat-form-field>
+                    <mat-select  placeholder = "Organization" [(ngModel)] = "organizationFilter">
+                        <input class="border-0 border-style" (keydown)="filterOptions($event.target.value, 'organization'); $event.stopPropagation();"
+                        placeholder="Search ...">
+                        <mat-option *ngFor="let user of filteredOrganizationList" [value]="user.name" (click) = "selectChange()">
+                            {{ user.name }}
+                        </mat-option>
+                    </mat-select>
+                    <mat-hint align="start">
+                        Filter by: Organization
+                    </mat-hint>
+                </mat-form-field>
+                <mat-icon *ngIf = "organizationFilter"  style="cursor: pointer;" (click) = "clearFilter('organization')">close</mat-icon>
+            </div>
+        </div>
+        <div class="row align-items-center filter-margin ml-2 mt-4 pt-5">
+            <div class="mat-table__wrapper">
+                <table mat-table [dataSource]="dataSource" multiTemplateDataRows class="mat-elevation-z8"  >
+                <ng-container matColumnDef="email">
+                    <th mat-header-cell *matHeaderCellDef>User Id</th>
+                    <td mat-cell *matCellDef="let element">{{ element.email|| '-' }}</td>
+                </ng-container>
+                <ng-container matColumnDef="organization">
+                    <th mat-header-cell *matHeaderCellDef>Organization </th>
+                    <td mat-cell *matCellDef="let element">{{ element?.user?.organization }}</td>
+                </ng-container>
+                <!-- <ng-container matColumnDef="userStatus">
+                    <th mat-header-cell *matHeaderCellDef>User Status </th>
+                    <td mat-cell *matCellDef="let element">{{ element?.user?.enabled ? 'Active' : 'De-Active'}}</td>
+                </ng-container> -->
+                <!-- <ng-container matColumnDef="email">
+                    <th mat-header-cell *matHeaderCellDef>Email </th>
+                    <td mat-cell *matCellDef="let element">{{ element.email }}</td>
+                </ng-container> -->
+                <ng-container matColumnDef="role">
+                    <th mat-header-cell *matHeaderCellDef>Role </th>
+                    <td mat-cell *matCellDef="let element">{{ element?.user?.role  }}</td>
+                </ng-container>
+                <ng-container matColumnDef="module">
+                    <th mat-header-cell *matHeaderCellDef>Module </th>
+                    <td mat-cell *matCellDef="let element">{{ element.module }}</td>
+                </ng-container>
+                <ng-container matColumnDef="subModule">
+                    <th mat-header-cell *matHeaderCellDef>Sub Module </th>
+                    <td mat-cell *matCellDef="let element">{{ element.submodule }}</td>
+                </ng-container>
+                <ng-container matColumnDef="action">
+                    <th mat-header-cell *matHeaderCellDef>Action </th>
+                    <td mat-cell *matCellDef="let element">{{ element.action }}</td>
+                </ng-container>
+                <!-- <ng-container matColumnDef="actionDetails">
+                    <th mat-header-cell *matHeaderCellDef>Action Detail </th>
+                    <td mat-cell *matCellDef="let element">{{!element.actionDetails.includes('existing') ? element.actionDetails :  ''}}</td>
+                </ng-container> -->
+                <ng-container matColumnDef="actionDetails">
+                    <th mat-header-cell *matHeaderCellDef>Action Detail</th>
+                    <td mat-cell *matCellDef="let element">
+                      <a mat-button color="primary"                      
+                      (click)="showError(element)" *ngIf="element.actionDetails"
+                      matTooltip="Click to view details">
+                      View Details
+                   </a>   
+                   <span *ngIf="!element.actionDetails">-</span>
+                 </td>
+               </ng-container>
+                <ng-container matColumnDef="logDateTime">
+                    <th mat-header-cell *matHeaderCellDef>Log Date Time </th>
+                    <td mat-cell *matCellDef="let element">{{ element.updatedAt | date : 'dd-MM-yyyy hh:mm:ss a' }}</td>
+                </ng-container>
+                <ng-container matColumnDef="expandedErrorDetail">
+                    <td mat-cell *matCellDef="let element" [attr.colspan]="displayedColumns.length">
+                    <div class="example-element-error" [@detailExpand]="element == expandedErrorElement ? 'expanded' : 'collapsed'">
+                        <div *ngIf = "currentErrorType === 'object'">
+                            <table>
+                                <thead>
+                                <tr>
+                                    <th>Message</th>
+                                    <th>Existing data</th>
+                                    <th>Updated data</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td class="error-message">{{ currentError.message || '-' }}</td>
+                                    <!-- <td class="error-message">{{ currentError.existing || '-' }}</td> -->
+                                    <td class="error-message" *ngIf = "currentError.message.includes('role')">
+                                        <ul>
+                                            <li *ngFor="let resource of currentError.existing">
+                                            {{ resource.displayResourceName }}
+                                            <ul>
+                                                <li *ngFor="let subResource of resource.subResources">
+                                                {{ subResource.displaySubResourceName }}
+                                                <ul>
+                                                    <li *ngFor="let service of subResource.services">
+                                                    {{ service.displayServiceName }}
+                                                    </li>
+                                                </ul>
+                                                </li>
+                                            </ul>
+                                            </li>
+                                        </ul>
+                                      </td>
+                                      <td class="error-message" *ngIf = "!currentError.message.includes('role')">
+                                        <ul style="list-style-type: none; padding-left: 0;">
+                                            <li *ngFor="let resource of currentError.existing" style="list-style-type: none; padding-left: 0;">
+                                                <ul style="list-style-type: none; padding-left: 0;">
+                                                    <li *ngFor="let item of resource | keyvalue" style="list-style-type: none; padding-left: 0;">
+                                                        <b>{{ item.key }}:</b> {{ item.value }}
+                                                    </li>
+                                                </ul>
+                                            </li>
+                                        </ul>
+                                      </td>
+                                    <!-- <td class="error-message">{{ currentError.Updated || '-' }}</td> -->
+                                    <td class="error-message" *ngIf = "currentError.message.includes('role')">
+                                        <ul>
+                                            <li *ngFor="let resource of currentError.Updated">
+                                            {{ resource.displayResourceName }}
+                                            <ul>
+                                                <li *ngFor="let subResource of resource.subResources">
+                                                {{ subResource.displaySubResourceName }}
+                                                <ul>
+                                                    <li *ngFor="let service of subResource.services">
+                                                    {{ service.displayServiceName }}
+                                                    </li>
+                                                </ul>
+                                                </li>
+                                            </ul>
+                                            </li>
+                                        </ul>
+                                      </td>
+                                      <td class="error-message" *ngIf="!currentError.message.includes('role')">
+                                        <ul style="list-style-type: none; padding-left: 0;">
+                                            <li *ngFor="let resource of currentError.Updated" style="list-style-type: none; padding-left: 0;">
+                                                <ul style="list-style-type: none; padding-left: 0;">
+                                                    <li *ngFor="let item of resource | keyvalue" style="list-style-type: none; padding-left: 0;">
+                                                        <b>{{ item.key }}:</b> {{ item.value }}
+                                                    </li>
+                                                </ul>
+                                            </li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div *ngIf = "currentErrorType !== 'object'">
+                            <table>
+                                <thead>
+                                <tr>
+                                    <th>Message</th>                                    
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td class="error-message">{{ currentError || '-' }}</td>                                   
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    </td>
+                </ng-container>
+                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                <tr mat-row *matRowDef="let element; columns: displayedColumns;"
+                class="example-element-row"
+                [class.example-expanded-row]="expandedElement === element">
+                 </tr>
+                <tr mat-row *matRowDef="let row; columns: ['expandedErrorDetail']" class="example-detail-row"></tr>
+
+                </table>
+                <!-- Message for empty data  -->
+                <div class="mat-table__message" [hidden]="!noData">No records found</div>
+                <mat-paginator #paginator [hidden]="isLoading" [hidden]="noData" [hidePageSize]="false" [length]="totalCount"
+                [pageSizeOptions]="[10, 20, 30, 40, 50]"  [showFirstLastButtons]="true" (page)="onPageChange($event)">
+                </mat-paginator>
+            </div>
+          </div>
+    </kt-portlet-body>
+</kt-portlet>

@@ -1,0 +1,280 @@
+<kt-portlet [ngClass]="{
+   'kt-portlet--body-progress kt-portlet--body-progress-overlay': isLoading
+ }">
+  <kt-portlet-header [class]="'kt-portlet__head--lg'" style="padding: 0">
+    <ng-container ktPortletTitle>
+      <h5 class="kt-portlet__head-title">
+        <span>Deeplinks Manage</span>
+      </h5>
+    </ng-container>
+  </kt-portlet-header>
+
+  <div class="kt-form kt-margin-b-30">
+    <div class="kt-form__filtration kt-margin">
+      <form name="form" [formGroup]="deeplinksForm">
+        <div class="row align-items-center filter-margin">
+          <div class="col-md-3 kt-margin-bottom-10-mobile mr-2">
+            <mat-form-field class="mat-form-field-fluid">
+              <mat-label>Market</mat-label>
+              <mat-select formControlName="locale" [(value)]="selectedLocale" placeholder="Mode" (selectionChange)="checked ? getVersions($event.value) : null">
+                <mat-option value="us">United States</mat-option>
+                <mat-option value="ca">Canada</mat-option>
+                <mat-option value="es">Spain</mat-option>
+                <mat-option value="uk">United Kingdom</mat-option>
+                <mat-option value="fr">France</mat-option>
+                <mat-option value="de">Germany</mat-option>
+                <mat-option value="jp">Japan</mat-option>
+                <mat-option value="br">Brazil</mat-option>
+              </mat-select>
+              <mat-error *ngIf="deeplinksForm.controls['locale'].hasError('required')">
+                *Required
+              </mat-error>
+              <mat-hint align="start">
+                <strong>Filter</strong> by Market
+              </mat-hint>
+            </mat-form-field>
+          </div>
+
+          <div class="col-md-3 kt-margin-bottom-10-mobile mx-2">
+            <mat-form-field class="mat-form-field-fluid">
+              <mat-label>Version</mat-label>
+              <ng-container *ngIf="checked">
+                <mat-select [disabled]="!versionFetched" formControlName="version" (selectionChange)="getDeeplinks(deeplinksForm)">
+                  <mat-option *ngFor="let version of versions; let idx = index;" [value]="version">{{version}}</mat-option>
+                </mat-select>
+              </ng-container>
+
+              <ng-container *ngIf="!checked">
+                <input matInput type="text" formControlName="version" (input)="ifValidVersion()">
+              </ng-container>
+              <mat-error *ngIf="deeplinksForm.controls['version'].hasError('required')">
+                *Required
+              </mat-error>
+              <mat-hint align="start">
+                <strong>Specify a</strong> version
+              </mat-hint>
+            </mat-form-field>
+          </div>
+
+          <div class="col-md-1 kt-margin-bottom-10-mobile mr-n5"></div>
+
+          <div class="col-md-2 kt-margin-bottom-10-mobile">
+            <mat-slide-toggle
+              (change)="isToggled($event)"
+              class="example-margin"
+              color="primary"
+              [disabled]="disabled">
+              <ng-container *ngIf="checked">
+                <mat-hint align="start">
+                  <strong>Manage</strong> versions
+                </mat-hint>
+              </ng-container>
+              <ng-container *ngIf="!checked">
+                <mat-hint align="start">
+                  <strong>Create</strong> versions
+                </mat-hint>
+              </ng-container>
+            </mat-slide-toggle>
+          </div>
+
+          <div class="col col-md-3 kt-form__filtration_less kt-padding-0 mr-2" style="
+                display: grid;
+                grid-template-columns: 1fr 1fr 1fr;
+                grid-gap: 5px;
+              ">
+            <button
+              class="my-5"
+              [disabled]="deeplinksForm.invalid || UpdateForm.invalid || data.data.length === 0 || !noNewRow"
+              (click)="updateDeeplinks()"
+              mat-raised-button
+              color="primary"
+              aria-label="Update"
+              type="submit">
+                <mat-icon style="display: inline-block;" *ngIf="deeplinksForm.invalid || UpdateForm.invalid || data.data.length === 0 || !noNewRow">
+                  lock
+                </mat-icon>
+                <fa-icon style="display: inline-block;" class="mr-2 mt-n1" [icon]="faWrench" *ngIf="UpdateForm.valid && deeplinksForm.valid && data.data.length !== 0 && noNewRow">
+                </fa-icon>
+              <ng-container *ngIf="checked">Update</ng-container>
+              <ng-container *ngIf="!checked">Create</ng-container>
+            </button>
+          </div>
+        </div>
+      </form>
+      <br />
+    </div>
+  </div>
+
+  <div *ngIf="!hideTable">
+    <div
+      class="row mx-4 mt-6 mb-5"
+    >
+      <div class="col-md-12">
+        <form [formGroup]="UpdateForm" autocomplete="off">
+          <table mat-table [dataSource]="data" class="mat-elevation-z0">
+            <ng-container matColumnDef="feature">
+              <th mat-header-cell  *matHeaderCellDef> Feature </th>
+              <td
+                mat-cell
+                *matCellDef="let element; let i = index"
+                [formGroup]="element">
+                <mat-form-field class="w-75 mt-2">
+                  <input
+                    matInput type="text"
+                    formControlName="feature"
+                    [readonly]="UpdateForm.get('VORows').value[i].isEditable"
+                  >
+                </mat-form-field>
+                <mat-error *ngIf="element.controls['feature'].hasError('required')">
+                  Feature name is <strong>required</strong>
+                </mat-error>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="deeplinks">
+              <th mat-header-cell  *matHeaderCellDef> Deeplinks </th>
+              <td
+                mat-cell
+                *matCellDef="let element; let i = index"
+                [formGroup]="element">
+                <mat-form-field class="w-75 mt-2">
+                  <input
+                    matInput type="text"
+                    formControlName="deeplinks"
+                    [readonly]="UpdateForm.get('VORows').value[i].isEditable"
+                  >
+                </mat-form-field>
+                <mat-error *ngIf="element.controls['deeplinks'].hasError('required')">
+                  Deeplink name is <strong>required</strong>
+                </mat-error>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="sprint">
+              <th mat-header-cell  *matHeaderCellDef> Sprint </th>
+              <td
+                mat-cell
+                *matCellDef="let element; let i = index"
+                [formGroup]="element">
+                <mat-form-field class="w-75 mt-2">
+                  <input
+                    matInput type="text"
+                    formControlName="sprint"
+                    [readonly]="UpdateForm.get('VORows').value[i].isEditable"
+                  >
+                </mat-form-field>
+                <mat-error *ngIf="element.controls['sprint'].hasError('required')">
+                  Sprint name is <strong>required</strong>
+                </mat-error>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="comments">
+              <th mat-header-cell  *matHeaderCellDef> Comments </th>
+              <td
+                mat-cell
+                *matCellDef="let element; let i = index"
+                [formGroup]="element">
+                <mat-form-field class="w-75 mt-2">
+                  <textarea
+                    cdkTextareaAutosize
+                    #autosize="cdkTextareaAutosize"
+                    cdkAutosizeMinRows="1"
+                    cdkAutosizeMaxRows="5"
+                    matInput type="text"
+                    formControlName="comments"
+                    [readonly]="UpdateForm.get('VORows').value[i].isEditable"
+                  ></textarea>
+                </mat-form-field>
+                <mat-error *ngIf="element.controls['comments'].hasError('required')">
+                  Comments are <strong>required</strong>
+                </mat-error>
+              </td>
+            </ng-container>
+
+            <ng-container class="col-md-5" matColumnDef="createdBy">
+              <th mat-header-cell *matHeaderCellDef> Created By </th>
+              <td
+                mat-cell
+                *matCellDef="let element; let i = index"
+                [formGroup]="element">
+                <mat-form-field class="w-75 mt-2">
+                  <input
+                    matInput type="text"
+                    formControlName="createdBy"
+                    [readonly]="true"
+                  >
+                </mat-form-field>
+              </td>
+            </ng-container>
+
+            <ng-container class="col-md-5" matColumnDef="createdAt">
+              <th mat-header-cell *matHeaderCellDef> Created At </th>
+              <td
+                mat-cell
+                *matCellDef="let element; let i = index"
+                [formGroup]="element">
+                <mat-form-field class="w-75 mt-2">
+                  <input
+                    matInput [matDatepicker]="pdt"
+                    formControlName="createdAt"
+                    [readonly]="true"
+                  >
+                </mat-form-field>
+              </td>
+            </ng-container>
+
+            <ng-container class="col-md-2" matColumnDef="action">
+              <th mat-header-cell class="text-center" *matHeaderCellDef> Action </th>
+              <td mat-cell class="text-center" *matCellDef="let element; let i = index" [formGroup]="element">
+                <button mat-icon-button class="material-icons app-toolbar-menu delete-button"
+                        *ngIf="UpdateForm.get('VORows').value[i].isEditable && i===0"
+                        matTooltip="Add Row" color="primary" (click)="AddNewRow()">
+                  <fa-icon [icon]="faPlus"></fa-icon>
+                </button>
+
+                <button mat-icon-button class="material-icons app-toolbar-menu save-button"
+                        matTooltip="Save Changes" (click)="SaveVO(UpdateForm,i)"
+                        *ngIf="!UpdateForm.get('VORows').value[i].isEditable &&
+                            UpdateForm.get('VORows').at(i).get('feature').valid &&
+                            UpdateForm.get('VORows').at(i).get('deeplinks').valid &&
+                            UpdateForm.get('VORows').at(i).get('sprint').valid &&
+                            UpdateForm.get('VORows').at(i).get('comments').valid"
+                        color="primary">
+                  <fa-icon [icon]="faSave"></fa-icon>
+                </button>
+
+                <button mat-icon-button class="material-icons app-toolbar-menu cancel-button"
+                        matTooltip="Cancel Changes" color="warn"
+                        (click)="CancelSVO(UpdateForm,i)"
+                        *ngIf="!UpdateForm.get('VORows').value[i].isEditable">
+                  <fa-icon [icon]="faBan"></fa-icon>
+                </button>
+
+                <button mat-icon-button class="material-icons app-toolbar-menu save-button"
+                        *ngIf="UpdateForm.get('VORows').value[i].isEditable"
+                        matTooltip="Edit" color="primary" (click)="EditSVO(UpdateForm,i)">
+                  <fa-icon [icon]="faPenSquare"></fa-icon>
+                </button>
+
+                <button mat-icon-button class="material-icons app-toolbar-menu delete-button"
+                        *ngIf="UpdateForm.get('VORows').value[i].isEditable"
+                        matTooltip="Delete" color="warn" (click)="DeleteSVO(UpdateForm,i)">
+                  <fa-icon [icon]="faTrashAlt"></fa-icon>
+                </button>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+          </table>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <mat-card *ngIf="isLoading" style="display: flex; justify-content: center; align-items: center">
+    <mat-progress-spinner color="primary" diameter="40" strokeWidth="1" mode="indeterminate">
+    </mat-progress-spinner>
+  </mat-card>
+</kt-portlet>

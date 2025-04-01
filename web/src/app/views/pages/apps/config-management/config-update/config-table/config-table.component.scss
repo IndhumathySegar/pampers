@@ -1,0 +1,123 @@
+table {
+  width: 100%;
+}
+.table-image {
+  height: 70px;
+  margin: 5px;
+  border-radius: 5px;
+}
+
+.filter-margin {
+  margin-top: 12px !important;
+  margin-right: 12px !important;
+  margin-left: 12px !important;
+}
+
+.mat-paginator-range-label {
+  display: none;
+}
+
+.mat-form-field {
+  font-size: 14px;
+  width: 100%;
+}
+
+
+/* Border */
+.mat-form-field-appearance-outline .mat-form-field-outline {
+  color: rgb(255, 255, 255);
+  /* background-color: white; */
+}
+/* Font color */
+input.mat-input-element {
+  color: rgb(0, 0, 0);
+}
+
+::ng-deep .mat-checkbox .mat-checkbox-frame {
+  border-color: #0abb87;
+}
+
+::ng-deep .mat-checkbox-checked .mat-checkbox-background {
+  background-color: #0abb87 !important;
+}
+
+::ng-deep .mat-checkbox-indeterminate .mat-checkbox-background {
+  border-color: #0abb87 !important;
+  background-color: #0abb87 !important;
+}
+
+::ng-deep mat-checkbox .mat-checkbox-checkmark-path {
+  stroke: white !important;
+}
+
+.mat-column-select {
+  max-width: 5%;
+  padding-right: 30px;
+}
+
+.mat-column-configKey {
+  max-width: 30%;
+  padding-right: 30px;
+  word-wrap: break-word;
+}
+
+.mat-column-configValue {
+  max-width: 55%;
+  padding-right: 30px;
+  word-wrap: break-word;
+}
+
+.mat-column-action {
+  width: 20%;
+  padding-right: 30px;
+}
+
+
+// Not Permitted table
+.mat-column-select1 {
+  word-wrap: break-word !important;
+  white-space: unset !important;
+  flex: 0 0 20% !important;
+  width: 20% !important;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+
+  word-break: break-word;
+
+  -ms-hyphens: auto;
+  -moz-hyphens: auto;
+  -webkit-hyphens: auto;
+  hyphens: auto;
+}
+
+.mat-column-configKey1 {
+  word-wrap: break-word !important;
+  white-space: unset !important;
+  flex: 0 0 40% !important;
+  width: 40% !important;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+
+  word-break: break-word;
+
+  -ms-hyphens: auto;
+  -moz-hyphens: auto;
+  -webkit-hyphens: auto;
+  hyphens: auto;
+}
+
+.mat-column-configValue1 {
+  word-wrap: break-word !important;
+  white-space: unset !important;
+  flex: 0 0 40% !important;
+  width: 40% !important;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+
+  word-break: break-word;
+
+  -ms-hyphens: auto;
+  -moz-hyphens: auto;
+  -webkit-hyphens: auto;
+  hyphens: auto;
+}

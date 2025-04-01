@@ -1,0 +1,124 @@
+<div class="kt-portlet">
+	<div class="kt-portlet__head kt-portlet__head__custom">
+		<div class="kt-portlet__head-label">
+			<h3 class="kt-portlet__head-title">{{getTitle()}}</h3>
+		</div>
+	</div>
+	<div class="kt-form">
+	  	<form [formGroup]="userForm">
+			<div class="kt-portlet__body">
+				<div class="row">
+					<div class="col-md-8">
+					
+							<div class=" col-lg-12 col-md-12 col-sm-12 pt-3">
+								<mat-form-field  class="col-md-12">
+									<mat-label>Email</mat-label>
+									<input matInput type="text" class="col-md-6 py-0" formControlName="email" required="true">
+									<mat-hint *ngIf = "displayEmailError" align="start" style="color: red;">
+										Email already exists
+									</mat-hint>
+								</mat-form-field>
+							</div>
+							<div class=" col-lg-12 col-md-12 col-sm-12 pt-3">
+								<mat-form-field  class="col-md-12">
+									<mat-label>Organisation</mat-label>
+									<mat-select formControlName="organization" required="true">
+										<mat-option [value]="item.name" *ngFor="let item of organizationList" >{{ item.name }}</mat-option>
+									</mat-select>
+								</mat-form-field>
+							</div>
+							<div class=" col-lg-12 col-md-12 col-sm-12 pt-3">
+								<mat-form-field  class="col-md-12">
+									<mat-label>Module</mat-label>
+									<mat-select formControlName="modules" multiple required="true"  (selectionChange)="selectModule($event)">
+										<p></p>
+										<mat-checkbox [checked]="isModuleChecked" (click)="togglemodulesSelectAll(moduleList, 'modules'); $event.stopPropagation();" style = "margin-left: 16px; color: rgba(0, 0, 0, 0.87);">Select All</mat-checkbox>
+										<mat-option [value]="item.uniqueResourceName" *ngFor="let item of moduleList" (click)="singleModuleSelectToggle(); $event.stopPropagation();">{{ item.name }}</mat-option>
+									</mat-select>
+								</mat-form-field>
+							</div>
+							<div class=" col-lg-12 col-md-12 col-sm-12 pt-3">
+								<mat-form-field  class="col-md-12">
+									<mat-label>Role</mat-label>
+									<mat-select formControlName="role" required="true">
+										<mat-option [value]="item.name" *ngFor="let item of filteredRoles" (click)="selectRole(item)">{{ item.name }}</mat-option>
+									</mat-select>
+								</mat-form-field>
+							</div>
+							<div class="col-lg-12 col-md-12 col-sm-12 pt-3">
+								<mat-form-field class="col-md-12">
+									<mat-label>Region</mat-label>
+									<mat-select formControlName="region" multiple required="true">
+									  <input class="border-0 border-style" (keydown)="regionFilterOptions($event.target.value); $event.stopPropagation();" 
+									  (keydown)="handleSpaceKey($event)"
+									  placeholder="Search ...">
+									  <mat-checkbox [checked]="isRegionChecked" (click)="toggleregionSelectAll(filteredRegionList, 'region'); $event.stopPropagation();" style = "margin-left: 16px; color: rgba(0, 0, 0, 0.87);">Select All</mat-checkbox>
+									  <mat-option *ngFor="let item of filteredRegionList" [value]="item.regionCode" (click)="singleRegionSelectToggle(); $event.stopPropagation();">
+										{{ item.region }} ({{ item.regionCode }})
+									  </mat-option>
+									</mat-select>
+								  </mat-form-field>
+							  </div>
+							  
+							  <div class="col-lg-12 col-md-12 col-sm-12 pt-3">
+								<mat-form-field class="col-md-12">
+								  <mat-label>Market</mat-label>
+								  <mat-select formControlName="markets" multiple required="true">
+									<input class="border-0 border-style" (keydown)="marketFilterOptions($event.target.value); $event.stopPropagation();" 
+									(keydown)="handleSpaceKey($event)"
+									
+									placeholder="Search ...">
+									<mat-checkbox [checked]="isMarketChecked" (click)="togglemarketsSelectAll(filteredMarketList, 'markets'); $event.stopPropagation();" style = "margin-left: 16px; color: rgba(0, 0, 0, 0.87);">Select All</mat-checkbox>
+									<mat-option *ngFor="let item of filteredMarketList" [value]="item.code" (click)="singleMarketSelectToggle(); $event.stopPropagation();">
+									  {{ item.name }} ({{ item.code }})
+									</mat-option>
+								  </mat-select>
+								</mat-form-field>
+							  </div>
+							  
+							  <div class="col-lg-12 col-md-12 col-sm-12 pt-3">
+								<mat-form-field class="col-md-12">
+								  <mat-label>Locale</mat-label>
+								  <mat-select formControlName="locales" multiple required="true">
+									<input class="border-0 border-style" (input)="localeFilterOptions($event.target.value); $event.stopPropagation();" 
+									(keydown)="handleSpaceKey($event)" placeholder="Search ...">
+									<mat-checkbox [checked]="isLocaleChecked" (click)="togglelocalesSelectAll(filteredLocaleList, 'locales'); $event.stopPropagation();" style = "margin-left: 16px; color: rgba(0, 0, 0, 0.87);">Select All</mat-checkbox>
+									<mat-option *ngFor="let item of filteredLocaleList" [value]="item.code" (click)="singleLocaleSelectToggle(); $event.stopPropagation();">
+									  {{ item.name }} ({{ item.code }})
+									</mat-option>
+								  </mat-select>
+								</mat-form-field>
+							  </div>							
+							<div class=" col-lg-12 col-md-12 col-sm-12 pt-3">
+								<mat-radio-group formControlName="enabled">
+									<mat-radio-button [checked]="userForm.value.enabled === true" value=true>Active</mat-radio-button>
+									<mat-radio-button [checked]="userForm.value.enabled === false" value=false>In-Active</mat-radio-button>
+								</mat-radio-group>
+							</div>
+					</div>
+				</div>
+
+			</div>
+			<div class="kt-portlet__foot kt-portlet__no-border kt-portlet__foot--fit">
+				<div class="kt-form__actions kt-form__actions--solid">
+					<div class="row text-right">
+						<div class="col-lg-12">
+							<button type="button" mat-raised-button [mat-dialog-close]="data.animal"
+								matTooltip="Cancel changes" tabindex="5">
+								Cancel
+							</button>&nbsp;
+							<button type="button" mat-raised-button color="primary" (click)="onSubmit()"
+								matTooltip="Save changes"
+								[disabled]="!userForm.valid || !safeGet(permission, 'adminPanel.adminPanel:users.adminPanel:users:editUser')">
+								<mat-icon style="display: inline-block;"
+									*ngIf="!safeGet(permission, 'adminPanel.adminPanel:users.adminPanel:users:editUser')">
+									lock</mat-icon>
+								Save
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</form>
+	</div>
+</div>

@@ -1,0 +1,27 @@
+.border-style {
+    width: 100%;
+    padding: 10px 15px;
+    &:focus-visible {
+      outline: none;
+    }
+}
+
+.mat-checkbox-checked:not(.mat-checkbox-disabled).mat-accent .mat-ripple-element, .mat-checkbox:active:not(.mat-checkbox-disabled).mat-accent .mat-ripple-element {
+  background: #58dd58;
+}
+
+.mat-checkbox-checked .mat-checkbox-background {
+  background: #0ABB87 !important;
+}
+
+.mat-radio-checked .mat-radio-inner-circle { 
+  background-color: #0ABB87 !important; 
+}
+.mat-radio-checked .mat-radio-outer-circle { 
+  border-color: #0ABB87 !important;
+}
+
+
+
+
+

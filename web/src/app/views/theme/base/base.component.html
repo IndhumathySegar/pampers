@@ -1,0 +1,98 @@
+<!-- begin:: Page -->
+<ng-container *ngIf="selfLayout !== 'blank'; else blankLayout">
+  <!-- begin:: Header Mobile -->
+  <kt-header-mobile></kt-header-mobile>
+  <!-- end:: Header Mobile -->
+
+  <div class="kt-grid kt-grid--hor kt-grid--root">
+    <!-- begin::Body -->
+    <div
+      class="kt-grid__item kt-grid__item--fluid kt-grid kt-grid--ver kt-page"
+    >
+      <div
+        class="
+          kt-grid__item kt-grid__item--fluid
+          kt-grid kt-grid--hor
+          kt-wrapper
+        "
+        id="kt_wrapper"
+      >
+        <!-- begin:: Header -->
+        <kt-header (activeMenu)="getSubMenu($event)"></kt-header>
+        <!-- end:: Header -->
+
+        <!-- begin:: Content -->
+        <div
+          class="
+            kt-body
+            kt-grid__item kt-grid__item--fluid
+            kt-grid kt-grid--hor kt-grid--stretch
+          "
+          id="kt_body"
+        >
+          <div
+            [ngClass]="{
+              'kt-container kt-container--fluid kt-grid kt-grid--ver':
+                asideDisplay
+            }"
+          >
+            <!-- begin:: Aside Left -->
+            <ng-container *ngIf="asideDisplay">
+              <button class="kt-aside-close" id="kt_aside_close_btn">
+                <i class="la la-close"></i>
+              </button>
+              <kt-aside-left></kt-aside-left>
+            </ng-container>
+            <!-- end:: Aside Left -->
+
+            <div
+              class="
+                kt-content
+                kt-grid__item kt-grid__item--fluid
+                kt-grid kt-grid--hor
+              "
+              id="kt_content"
+            >
+              <!-- begin:: Content Body -->
+              <div
+                ktContentAnimate
+                class="kt-container kt-grid__item kt-grid__item--fluid"
+                [ngClass]="{ 'kt-container--fluid': fluid }"
+              >
+                <ng-container *ngIf="showSubMenuObj? showSubMenuObj.showSubMenu : false">
+                  <router-outlet></router-outlet>
+                </ng-container>
+                <ng-container *ngIf="showSubMenuObj ? !showSubMenuObj.showSubMenu : false">
+                  <mat-progress-spinner
+                    class="container"
+                    color="primary"
+                    diameter="40"
+                    strokeWidth="1"
+                    mode="indeterminate"
+                    *ngIf="loading"
+                  >
+                  </mat-progress-spinner>
+                </ng-container>
+              </div>
+              <!-- end:: Content Body -->
+            </div>
+          </div>
+          <!-- end:: Content -->
+        </div>
+
+        <kt-footer></kt-footer>
+      </div>
+    </div>
+    <!-- end:: Body -->
+
+    <kt-scroll-top></kt-scroll-top>
+    <ngx-spinner bdColor="rgba(51, 51, 51, 0.8)" size="default" type="ball-spin-clockwise">
+      <p style="color: white">Please Wait.... </p>
+    </ngx-spinner>
+  </div>
+</ng-container>
+<!-- end:: Page -->
+
+<ng-template #blankLayout>
+  <router-outlet></router-outlet>
+</ng-template>

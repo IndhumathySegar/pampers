@@ -1,0 +1,126 @@
+<kt-portlet>
+  <kt-portlet-header [class]="'kt-portlet__head--lg'" style="padding: 0">
+    <ng-container ktPortletTitle>
+      <h5 class="kt-portlet__head-title">
+        <span>Content Translation History</span>
+      </h5>
+    </ng-container>
+  </kt-portlet-header>
+  <kt-portlet-body>
+    <div class="mat-elevation-z0">
+      <table
+        mat-table
+        [dataSource]="dataSource"
+        multiTemplateDataRows
+        class="mat-elevation-z8"
+      >
+        <ng-container matColumnDef="label">
+          <th mat-header-cell *matHeaderCellDef>Label</th>
+          <td mat-cell *matCellDef="let element">
+            <p style="width: 200px; word-break: break-all">
+              {{ element.data?.label }}
+            </p>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="initialValue">
+          <th mat-header-cell *matHeaderCellDef>Initial Value</th>
+          <td mat-cell *matCellDef="let element">
+            <ng-container
+              *ngIf="expandedRows.has(element._id); else truncatedContent"
+            >
+            <div [innerHTML]="element.data.initialValue" class="expanded-content"></div>
+            </ng-container>
+            <ng-template #truncatedContent>
+              <div class="truncated-content" [innerHTML]="element.data.initialValue | slice:0:300"></div>
+              <!-- Display only first 50 characters -->
+              <button
+                style="border: 0px; margin-bottom: 5px"
+                *ngIf="
+                  element.data.initialValue.length > 300 &&
+                  !expandedRows.has(element._id)
+                "
+                (click)="toggleExpansion(element._id)"
+              >
+                Read More...
+              </button>
+            </ng-template>
+            <button
+              style="border: 0px; margin-bottom: 5px"
+              *ngIf="expandedRows.has(element._id)"
+              (click)="toggleExpansion(element._id)"
+            >
+              Read Less...
+            </button>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="replaceValue">
+          <th mat-header-cell *matHeaderCellDef>Replaced Value</th>
+          <td mat-cell *matCellDef="let element">
+            <ng-container
+              *ngIf="
+                expandedReplaceRows.has(element._id);
+                else truncatedContent
+              "
+            >
+            <div [innerHTML]="element.data.replaceValue" class="expanded-content"></div>
+            </ng-container>
+            <ng-template #truncatedContent>
+              <div class="truncated-content" [innerHTML]="element.data.replaceValue| slice:0:300"></div>
+              <!-- Display only first 50 characters -->
+              <button
+                style="border: 0px; margin-bottom: 5px"
+                *ngIf="
+                  element.data.replaceValue.length > 300 &&
+                  !expandedReplaceRows.has(element._id)
+                "
+                (click)="toggleReplaceExpansion(element._id)"
+              >
+                Read More...
+              </button>
+            </ng-template>
+            <button
+              style="border: 0px; margin-bottom: 5px"
+              *ngIf="expandedReplaceRows.has(element._id)"
+              (click)="toggleReplaceExpansion(element._id)"
+            >
+              Read Less...
+            </button>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="email">
+          <th mat-header-cell *matHeaderCellDef>Updated By</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.email }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="initiatedAt">
+          <th mat-header-cell *matHeaderCellDef>Initiated At</th>
+          <td mat-cell *matCellDef="let element">
+            {{formatDateTime( element.createdAt )}}
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr
+          mat-row
+          *matRowDef="let element; columns: displayedColumns"
+          class="example-element-row"
+          [class.example-expanded-row]="expandedElement === element"
+        ></tr>
+      </table>
+      <!-- Message for empty data  -->
+      <div class="mat-table__message" [hidden]="!noData">No records found</div>
+      <mat-paginator
+        #paginator
+        [hidden]="isLoading"
+        [hidden]="noData"
+        [hidePageSize]="true"
+        [length]="totalCount"
+        [pageSizeOptions]="[50]"
+        [showFirstLastButtons]="false"
+        (page)="onPaginationChange($event)"
+      >
+      </mat-paginator>
+    </div>
+  </kt-portlet-body>
+</kt-portlet>

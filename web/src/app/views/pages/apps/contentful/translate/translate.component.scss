@@ -1,0 +1,85 @@
+.code-section {
+    position: sticky;
+    top: 0;
+    background-color: white;
+    z-index: 1;
+    transition: padding 0.2s ease;
+  }
+
+.equal-padding {
+  padding-bottom: 20px;
+ }
+
+ .button-container {
+  display: flex;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.button-container button {
+  flex-basis: 45%;
+  margin-bottom: 10px;
+  font-size: 12px;
+  white-space: normal;
+  line-height: normal;
+  padding: 4px;
+}
+
+.upload-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.button-content {
+  display: flex;
+  margin-left: -18px;
+  align-items: center;
+  font-size: x-large;
+}
+
+.button-text {
+  display: flex;
+  align-items: center;
+}
+
+.upload-icon {
+  width: 30px;
+  vertical-align: top;
+}
+
+.disabled {
+  pointer-events: none; 
+}
+
+.loader-container {
+  position: fixed;
+  background: transparent;
+  top: 55%; /* Position at the vertical center */
+  left: 50%; /* Position at the horizontal center */
+  transform: translate(-50%, -50%);
+  z-index: 9999; /* Ensure it appears above the content */
+}
+.loader-container-card{
+  display: flex; 
+  justify-content: center; 
+  align-items: center;
+  background: transparent;
+  box-shadow: none;
+}
+.not-review-dropdown {
+  max-width: 19%;
+}
+.custom-translate-btn 
+.mat-raised-button.mat-button-base.mat-primary
+{
+  max-width: 175px;
+  margin-left: 10px;
+}
+.border-style {
+width: 100%;
+padding: 10px 15px;
+&:focus-visible {
+  outline: none;
+}
+}

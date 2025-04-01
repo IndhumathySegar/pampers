@@ -1,0 +1,98 @@
+<kt-portlet>
+  <kt-portlet-header [class]="'kt-portlet__head--lg'" style="padding: 0">
+    <ng-container ktPortletTitle>
+      <h5 class="kt-portlet__head-title">
+        <span>Regional Creation</span>
+      </h5>
+    </ng-container>
+  </kt-portlet-header>
+  <kt-portlet-body>
+    <div class="kt-form kt-margin-b-30">
+      <div class="kt-form__filtration">
+        <div class="row">
+          <div class="col-md-4 kt-margin-bottom-10-mobile">
+            <form class="login" name="form" [formGroup]="regionForm">
+              <div class="kt-form__control">
+ 
+                <mat-form-field class="mat-form-field-fluid mb-3">
+                  <mat-label>Project</mat-label>
+                  <mat-select formControlName="project" [disabled]="isSpaceLoading">                              
+                    <mat-option *ngFor="let item of projects" [value]="item.name">
+                      {{ item.name }}
+                    </mat-option>
+                  </mat-select>
+                  <mat-hint *ngIf="isSpaceLoading">Loading...</mat-hint>
+                </mat-form-field>
+ 
+                <mat-form-field class="mat-form-field-fluid mb-3" *ngIf="isCountry === 'FALSE' || !isCountry">
+                  <mat-label>Region</mat-label>
+                  <mat-select formControlName="region" multiple [disabled]="isModelLoading">
+                    <input class="border-0 border-style"
+                      (keydown)="regionFilterOptions($event.target.value); $event.stopPropagation();"
+                      (keydown)="handleSpaceKey($event)" placeholder="Search ...">  
+                      <mat-checkbox [checked]="isRegionChecked" (click)="toggleRegionSelectAll(filteredRegionList, 'region'); $event.stopPropagation();" style = "margin-left: 16px; color: rgba(0, 0, 0, 0.87);">Select All</mat-checkbox>                
+                    <mat-option *ngFor="let item of filteredRegionList" [value]="item.regionCode" (click)="singleRegionSelectToggle(); $event.stopPropagation();"
+                     >
+                      {{ item.regionName }} ({{ item.regionCode }})
+                    </mat-option>
+                  </mat-select>
+                  <mat-hint *ngIf="isModelLoading">Loading...</mat-hint>
+                </mat-form-field>
+
+                <mat-form-field class="mat-form-field-fluid mb-3" *ngIf="isCountry === 'TRUE'">
+                  <mat-label>Region</mat-label>
+                  <mat-select formControlName="region" multiple [disabled]="isModelLoading">
+                    <input class="border-0 border-style"
+                      (keydown)="marketFilterOptions($event.target.value); $event.stopPropagation();"
+                      (keydown)="handleSpaceKey($event)" placeholder="Search ...">  
+                      <mat-checkbox [checked]="isMarketChecked" (click)="toggleMarketSelectAll(filteredRegionList, 'region'); $event.stopPropagation();" style = "margin-left: 16px; color: rgba(0, 0, 0, 0.87);">Select All</mat-checkbox>                
+                    <mat-option *ngFor="let item of filterMarket" [value]="item.code" (click)="singleMarketSelectToggle(); $event.stopPropagation();"
+                     >
+                      {{ item.name }} ({{ item.code }})
+                    </mat-option>
+                  </mat-select>
+                  <mat-hint *ngIf="isModelLoading">Loading...</mat-hint>
+                </mat-form-field>
+ 
+                <mat-form-field class="mat-form-field-fluid mb-3">
+                  <mat-label>Content Models</mat-label>
+                  <mat-select formControlName="contentModels" multiple [disabled]="isModelLoading">
+                    <input class="border-0 border-style" (input)="modelFilterOptions($event.target.value); $event.stopPropagation();"
+                    (keydown)="handleSpaceKey($event)" placeholder="Search ...">
+                    <mat-checkbox [checked]="isModelChecked" (click)="toggleModelSelectAll(filteredModelList, 'contentModels'); $event.stopPropagation();" style = "margin-left: 16px; color: rgba(0, 0, 0, 0.87);">Select All</mat-checkbox>
+                    <mat-option *ngFor="let item of filteredModelList" [value]="item.modelId" (click)="singleModelSelectToggle(); $event.stopPropagation();">
+                      {{ item.modelName }}
+                    </mat-option>
+                  </mat-select>
+ 
+                  <mat-hint *ngIf="isModelLoading">Loading...</mat-hint>
+                </mat-form-field>      
+ 
+                <mat-form-field class="mat-form-field-fluid mb-3">
+                  <mat-label>Tags</mat-label>
+                  <mat-select formControlName="tags" multiple [disabled]="isTagsLoading">
+                    <input class="border-0 border-style" (input)="tagFilterOptions($event.target.value); $event.stopPropagation();"
+                    (keydown)="handleSpaceKey($event)" placeholder="Search ...">
+                    <mat-checkbox [checked]="isTagChecked" (click)="toggleTagSelectAll(filteredTagList, 'tags'); $event.stopPropagation();" style = "margin-left: 16px; color: rgba(0, 0, 0, 0.87);">Select All</mat-checkbox>
+                    <mat-option *ngFor="let item of filteredTagList" [value]="item.sys.id" (click)="singleTagSelectToggle(); $event.stopPropagation();">
+                      {{ item.name }}
+                    </mat-option>
+                  </mat-select>
+                  <mat-hint *ngIf="isTagsLoading">Loading...</mat-hint>
+                </mat-form-field>
+                <div>
+                  <button mat-raised-button color="primary" type = "button" (click) = "createRegion()"
+                    [ngStyle]="{ 'cursor': regionForm.valid ? 'pointer' : 'not-allowed' }"
+                    [disabled]="!regionForm.valid">
+                   
+                    Create
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </kt-portlet-body>
+</kt-portlet>

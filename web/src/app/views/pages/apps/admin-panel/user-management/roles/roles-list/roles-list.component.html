@@ -1,0 +1,110 @@
+<kt-portlet>
+	<!-- PORTLET LOADING | Binded to TABLE Datasource -->
+	<kt-portlet-header [title]="'Roles list'" [class]="'kt-portlet__head--lg'" [viewLoading$]="dataSource?.loading$"
+		style="padding:0">
+
+		<ng-container ktPortletTools>
+			<button (click)="addRole()"
+				[disabled]="!safeGet(permission, 'adminPanel.adminPanel:roles.adminPanel:roles:editRole')"
+				mat-raised-button matTooltip="Create new role" color="primary" type="button">
+				<span>New Role</span>
+			</button>
+		</ng-container>
+	</kt-portlet-header>
+	<!-- end::Header -->
+
+	<kt-portlet-body>
+		<!-- start::FILTERS & GROUP ACTIONS -->
+		<div class="kt-form kt-margin-b-30">
+			<!-- start::FILTERS -->
+			<div class="kt-form__filtration">
+				<div class="row align-items-center">
+					<div class="col-md-2 kt-margin-bottom-10-mobile">
+						<mat-form-field class="mat-form-field-fluid">
+							<input matInput placeholder="Search Role" #searchInput placeholder="Search">
+							<mat-hint align="start">
+								<strong>Search</strong> Role
+							</mat-hint>
+						</mat-form-field>
+					</div>
+				</div>
+			</div>
+			<!-- end::FILTERS -->
+		</div>
+		<!-- end::FILTERS & GROUP ACTIONS -->
+
+		<!-- MATERIAL TABLE | Binded to datasources -->
+		<div class="mat-table__wrapper">
+			<mat-table class="lmat-elevation-z8" #table [dataSource]="dataSource" matSort #sort1="matSort"
+				matSortActive="role" matSortDirection="asc" matSortDisableClear>
+
+				<ng-container matColumnDef="select">
+					<mat-header-cell *matHeaderCellDef class="mat-column-checkbox">
+						<mat-checkbox (change)="$event ? masterToggle() : null"
+							[checked]="selection.hasValue() && isAllSelected()"
+							[indeterminate]="selection.hasValue() && !isAllSelected()">
+						</mat-checkbox>
+					</mat-header-cell>
+					<mat-cell *matCellDef="let row" class="mat-column-checkbox">
+						<mat-checkbox (click)="$event.stopPropagation()"
+							(change)="$event ? selection.toggle(row) : null" [checked]="selection.isSelected(row)">
+						</mat-checkbox>
+					</mat-cell>
+				</ng-container>
+
+				<ng-container matColumnDef="role">
+					<mat-header-cell *matHeaderCellDef mat-sort-header>Title</mat-header-cell>
+					<mat-cell *matCellDef="let role">{{role.name}}</mat-cell>
+				</ng-container>
+				<ng-container matColumnDef="action">
+					<mat-header-cell *matHeaderCellDef mat-sort-header>Module</mat-header-cell>
+					<mat-cell *matCellDef="let role">{{role.action}}</mat-cell>
+				</ng-container>
+
+				<ng-container matColumnDef="actions">
+					<mat-header-cell *matHeaderCellDef>Actions</mat-header-cell>
+					<mat-cell *matCellDef="let role">
+						<button mat-icon-button color="primary"
+							[disabled]="!safeGet(permission, 'adminPanel.adminPanel:roles.adminPanel:roles:getAllRoles')"
+							matTooltip="{{ !role.canEdit || !safeGet(permission, 'adminPanel.adminPanel:roles.adminPanel:roles:editRole') ? 'View' : 'Edit'}} role"
+							(click)="editRole(role)">
+							<mat-icon>
+								{{ !role.canEdit || !safeGet(permission,
+								'adminPanel.adminPanel:roles.adminPanel:roles:editRole') ? 'visibility' :
+								'create' }}
+							</mat-icon>
+						</button>&nbsp;
+						<button mat-icon-button color="warn" matTooltip="Delete role" type="button"
+							[disabled]="!role.canDelete || !safeGet(permission, 'adminPanel.adminPanel:roles.adminPanel:roles:deleteRole')"
+							(click)="deleteRole(role)">
+							<mat-icon>delete</mat-icon>
+						</button>
+					</mat-cell>
+				</ng-container>
+
+				<mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+
+				<mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
+			</mat-table>
+
+			<div class="mat-table__message" *ngIf="!dataSource?.hasItems">No records found</div>
+			<!-- Message for empty data  -->
+			<div class="mat-table__message" *ngIf="dataSource?.isPreloadTextViewed$ | async">Please wait....</div>
+		</div>
+
+		<!-- start: BOTTOM -->
+		<div class="mat-table__bottom" [hidden]="(dataSource?.paginatorTotal$ | async)<=0">
+			
+			
+			<!-- MATERIAL SPINNER | Url: 'https://material.angular.io/components/progress-spinner/overview' -->
+			<mat-spinner [diameter]="20" *ngIf="dataSource?.loading$ | async"></mat-spinner>
+			<!-- MATERIAL PAGINATOR | Binded to dasources -->
+			<!-- See off.documentations 'https://material.angular.io/components/paginator/overview' -->
+			<mat-paginator [pageSize]="paginator.pageSize" [pageSizeOptions]="[3, 5, 10, 50]" [length]="dataSource?.paginatorTotal$ | async" 
+			[showFirstLastButtons]="true" (page)="onPageChange($event)"></mat-paginator>
+			
+		</div>
+		<!-- end: BOTTOM -->
+	</kt-portlet-body>
+	<!-- end::Body -->
+</kt-portlet>

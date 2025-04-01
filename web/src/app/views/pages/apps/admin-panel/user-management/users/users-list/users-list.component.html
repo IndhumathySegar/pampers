@@ -1,0 +1,361 @@
+<kt-portlet>
+  <!-- PORTLET LOADING | Binded to TABLE Datasource -->
+  <!-- See prop => '~/core/_crud/models/data-sources/_base.datasource.ts' (loading$) -->
+  <kt-portlet-header [title]="'Users list'" [class]="'kt-portlet__head--lg'" [viewLoading$]="dataSource.loading$">
+    <ng-container ktPortletTools>
+      <button (click)="addUser()" mat-raised-button color="primary" matTooltip="Create new User"
+        [disabled]="!safeGet(permission, 'adminPanel.adminPanel:users.adminPanel:users:editUser')">
+        <mat-icon style="display: inline-block;"
+          *ngIf="!safeGet(permission, 'adminPanel.adminPanel:users.adminPanel:users:editUser')">
+          lock</mat-icon>
+        New user
+      </button>
+    </ng-container>
+  </kt-portlet-header>
+  <!-- end::Header -->
+
+  <!-- start::Body (attribute: ktPortletBody) -->
+  <kt-portlet-body>
+    <!-- start::FILTERS & GROUP ACTIONS -->
+    <div class="kt-form kt-margin-b-30">
+      <!-- start::FILTERS -->
+      <div class="kt-form__filtration">
+        <div class="row align-items-center">
+
+          <!-- <div class="col-md-2 kt-margin-bottom-10-mobile">
+            <mat-form-field class="mat-form-field-fluid">
+              <input matInput placeholder="Search user" #searchInput placeholder="Search" />
+            </mat-form-field>
+          </div> -->
+
+
+        </div>
+      </div>
+      <!-- end::FILTERS -->
+
+      <!-- start::GROUP ACTIONS -->
+      <!-- Group actions list: 'Delete selected' | 'Fetch selected' | 'Update status for selected' -->
+      <!-- Group actions are shared for all LISTS -->
+      <div class="row align-items-center collapse kt-form__group-actions kt-margin-top-20 kt-margin-bottom-20"
+        [ngClass]="{ show: selection.selected.length > 0 }">
+        <!-- We show 'Group Actions' div if smth are selected -->
+        <div class="col-xl-12">
+          <div class="kt-form__group kt-form__group--inline">
+            <div class="kt-form__label kt-form__label-no-wrap">
+              <label class="kt--font-bold kt-font-danger-">
+                <span translate="ECOMMERCE.COMMON.SELECTED_RECORDS_COUNT"></span>
+                {{ selection.selected.length }}
+              </label>
+              <!-- selectedCountsTitle => function from codeBehind (users-list.component.ts file) -->
+              <!-- selectedCountsTitle => just returns title of selected items count -->
+              <!-- for example: Selected records count: 4 -->
+            </div>
+            <div class="kt-form__control kt-form__group--inline">
+              <button (click)="fetchUsers()" mat-raised-button  color="primary" matTooltip="Fetch selected users"
+                >
+                <mat-icon>clear_all</mat-icon>
+                Fetch Selected
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- end::GROUP ACTIONS -->
+    </div>
+    <!-- end::FILTERS & GROUP ACTIONS -->
+
+    <div class="row align-items-center filter-margin ml-2 mt-4">
+      <div class="col-md-12 d-flex justify-content-end">
+          <button mat-raised-button color="primary" type="button" (click)="showFilter ? closeFilter($event) : openFilter()" class="d-flex align-items-center mr-2">
+              <mat-icon style="cursor: pointer; margin-right: 5px;">filter_list</mat-icon> 
+              Filter
+              <mat-icon *ngIf="showFilter" style="cursor: pointer; margin-left: 10px;" (click)="closeFilter($event)">close</mat-icon>
+          </button>
+          <!-- <button mat-raised-button color="primary" type="button" class="d-flex align-items-center" (click) = "exportData()">
+              Export
+              <mat-icon style="cursor: pointer; margin-right: 5px;">cloud_upload</mat-icon>
+          </button> -->
+           <a>
+              <button style="height: 37px" mat-raised-button  color="primary" aria-label="Clear" (click)="showPasswordDetails()"
+                [disabled]="((!safeGet(permission, 'adminPanel.adminPanel:users.adminPanel:users:exportUserList')) || (dataSource?.paginatorTotal$ | async)<=0)">
+                <fa-icon [icon]="faFileExport"
+                  *ngIf="safeGet(permission, 'adminPanel.adminPanel:users.adminPanel:users:exportUserList')">
+                </fa-icon>
+            
+                <mat-icon style="display: inline-block;"
+                  *ngIf="!safeGet(permission, 'adminPanel.adminPanel:users.adminPanel:users:exportUserList') ">
+                  lock</mat-icon>
+                Export Users
+              </button>
+            </a>
+      </div>
+  </div>
+  <div *ngIf = "showFilter" class="row align-items-center filter-margin ml-2 mt-4 align-work"  style="display: flex; align-items: center;">
+      <div class="col-xs-12 col-sm-6 col-md-4 col-lg-4 col-xl-3 not-review-dropdown kt-margin-bottom-10-mobile" style="display: flex; align-items: center;">
+          <mat-form-field>
+              <!-- <input matInput placeholder="Search by from"> -->
+              <input matInput [matDatepicker]="addedDatePicker" readonly (click)="addedDatePicker.open()" placeholder="Added on date"  [(ngModel)] = "addDateFilter" (ngModelChange)="orgValueChange()">
+              <mat-datepicker-toggle
+              matSuffix
+                [for]="addedDatePicker"
+                [disabled]="false"
+              ></mat-datepicker-toggle>
+              <mat-datepicker #addedDatePicker [disabled]="false"></mat-datepicker>
+          </mat-form-field>
+          <mat-icon *ngIf = "addDateFilter" style="cursor: pointer;" (click) = "clearFilter('addDate')">close</mat-icon>
+      </div>
+      <div class="col-xs-12 col-sm-6 col-md-4 col-lg-4 col-xl-3 not-review-dropdown kt-margin-bottom-10-mobile"  style="display: flex; align-items: center;">
+          <mat-form-field>
+              <input matInput [matDatepicker]="lastLoginDatePicker" readonly (click)="lastLoginDatePicker.open()" placeholder="Last login date"  [(ngModel)] = "lastLoginDateFilter" (ngModelChange)="orgValueChange()">
+              <mat-datepicker-toggle
+              matSuffix
+                [for]="lastLoginDatePicker"
+                [disabled]="false"
+              ></mat-datepicker-toggle>
+              <mat-datepicker #lastLoginDatePicker [disabled]="false"></mat-datepicker>
+          </mat-form-field>
+          <mat-icon *ngIf = "lastLoginDateFilter" style="cursor: pointer;" (click) = "clearFilter('lastLoginDate')">close</mat-icon>
+      </div>
+
+      <div class="col-xs-12 col-sm-6 col-md-4 col-lg-4 col-xl-3 not-review-dropdown kt-margin-bottom-10-mobile"  style="display: flex; align-items: center;">
+        <mat-form-field>
+            <mat-select  placeholder = "Region"  [(ngModel)] = "regionFilter">
+                <input class="border-0 border-style" [(ngModel)]="searchRegion" (keydown)="filterOptions($event.target.value, 'region'); $event.stopPropagation();"
+                placeholder="Search ...">
+                <mat-option *ngFor="let region of filteredRegionList" [value]="region.regionCode" (click) = "selectChange();changeRegion();changeMarket()">
+                    {{ region.region }} ({{ region.regionCode }})
+                </mat-option>
+            </mat-select>
+            <mat-hint align="start">
+                Filter by: Region
+            </mat-hint>
+        </mat-form-field>
+        <mat-icon *ngIf = "regionFilter"  style="cursor: pointer;" (click) = "clearFilter('region')">close</mat-icon>
+    </div>
+
+      <div class="col-xs-12 col-sm-6 col-md-4 col-lg-4 col-xl-3 not-review-dropdown kt-margin-bottom-10-mobile"  style="display: flex; align-items: center;">
+          <mat-form-field>
+              <mat-select  placeholder = "Market"  [(ngModel)] = "marketFilter">
+                  <input class="border-0 border-style" [(ngModel)]="searchMarket" (keydown)="filterOptions($event.target.value, 'market'); $event.stopPropagation();"
+                  placeholder="Search ...">
+                  <mat-option *ngFor="let market of filteredMarketList" [value]="market.code" (click) = "selectChange();changeMarket()">
+                      {{ market.name }} ({{market.code}})
+                  </mat-option>
+              </mat-select>
+              <mat-hint align="start">
+                  Filter by: Market
+              </mat-hint>
+          </mat-form-field>
+          <mat-icon *ngIf = "marketFilter"  style="cursor: pointer;" (click) = "clearFilter('market')">close</mat-icon>
+      </div>
+
+      <div class="col-xs-12 col-sm-6 col-md-4 col-lg-4 col-xl-3 not-review-dropdown kt-margin-bottom-10-mobile"  style="display: flex; align-items: center;">
+        <mat-form-field>
+            <mat-select  placeholder = "Locale"  [(ngModel)] = "localeFilter">
+                <input class="border-0 border-style"  [(ngModel)]="searchLocale" (keydown)="filterOptions($event.target.value, 'locale'); $event.stopPropagation();"
+                placeholder="Search ...">
+                <mat-option *ngFor="let locale of filteredLocaleList" [value]="locale.code" (click) = "selectChange()">
+                    {{ locale.name }} ({{locale.code}})
+                </mat-option>
+            </mat-select>
+            <mat-hint align="start">
+                Filter by: Locale
+            </mat-hint>
+        </mat-form-field>
+        <mat-icon *ngIf = "localeFilter"  style="cursor: pointer;" (click) = "clearFilter('locale')">close</mat-icon>
+    </div>
+
+      <div class="col-xs-12 col-sm-6 col-md-4 col-lg-4 col-xl-3 not-review-dropdown kt-margin-bottom-10-mobile"  style="display: flex; align-items: center;">
+          <mat-form-field>
+              <mat-select  placeholder = "Status" [(ngModel)] = "statusFilter">
+                  <input class="border-0 border-style" [(ngModel)]="searchStatus" (keydown)="filterOptions($event.target.value, 'status'); $event.stopPropagation();"
+                  placeholder="Search ...">
+                  <mat-option *ngFor="let status of filteredStatusList" [value]="status.value" (click) = "selectChange()">
+                      {{ status.name }}
+                  </mat-option>
+              </mat-select>
+              <mat-hint align="start">
+                  Filter by: Status
+              </mat-hint>
+          </mat-form-field>
+          <mat-icon *ngIf = "statusFilter===true || statusFilter===false"  style="cursor: pointer;" (click) = "clearFilter('status')">close</mat-icon>
+      </div>
+      <div class="col-xs-12 col-sm-6 col-md-4 col-lg-4 col-xl-3 not-review-dropdown kt-margin-bottom-10-mobile"  style="display: flex; align-items: center;">
+          <mat-form-field>
+              <mat-select  placeholder = "UserId" [(ngModel)] = "userIdFilter">
+                  <input class="border-0 border-style"    [(ngModel)]="searchUserIdText" (keydown)="filterOptions($event.target.value, 'user'); $event.stopPropagation();"
+                  placeholder="Search ...">
+                  <mat-option *ngFor="let user of filteredUserIdList" [value]="user.email" (click) = "selectChange()">
+                       {{ user.email }}
+                  </mat-option>
+              </mat-select>
+              <mat-hint align="start">
+                  Filter by: User Id
+              </mat-hint>
+          </mat-form-field>
+          <mat-icon *ngIf = "userIdFilter"  style="cursor: pointer;" (click) = "clearFilter('user')">close</mat-icon>
+      </div>        
+      <div class="col-xs-12 col-sm-6 col-md-4 col-lg-4 col-xl-3 not-review-dropdown kt-margin-bottom-10-mobile" style="display: flex; align-items: center;">
+          <mat-form-field>
+              <mat-select  placeholder = "Role" [(ngModel)] = "roleFilter">
+                  <input class="border-0 border-style" [(ngModel)]="searchRole" (keydown)="filterOptions($event.target.value, 'role'); $event.stopPropagation();"
+                                      placeholder="Search ...">
+                  <mat-option *ngFor="let role of filteredRoleList" [value]="role.name" (click) = "selectChange()">
+                      {{ role.name }}
+                  </mat-option>
+              </mat-select>
+              <mat-hint align="start">
+                  Filter by: Role
+              </mat-hint>
+          </mat-form-field>
+          <mat-icon *ngIf = "roleFilter"  style="cursor: pointer;" (click) = "clearFilter('role')">close</mat-icon>
+      </div>
+      <div class="col-xs-12 col-sm-6 col-md-4 col-lg-4 col-xl-3 not-review-dropdown kt-margin-bottom-10-mobile pt-3 pb-3" style="display: flex; align-items: center;">
+          <mat-form-field>
+              <mat-select  placeholder = "Organization" [(ngModel)] = "organizationFilter">
+                  <input class="border-0 border-style" [(ngModel)]="searchOrganization" (keydown)="filterOptions($event.target.value, 'organization'); $event.stopPropagation();"
+                  placeholder="Search ...">
+                  <mat-option *ngFor="let user of filteredOrganizationList" [value]="user.name" (click) = "selectChange()">
+                      {{ user.name }}
+                  </mat-option>
+              </mat-select>
+              <mat-hint align="start">
+                  Filter by: Organization
+              </mat-hint>
+          </mat-form-field>
+          <mat-icon *ngIf = "organizationFilter"  style="cursor: pointer;" (click) = "clearFilter('organization')">close</mat-icon>
+      </div>
+  </div>
+    <div class="mat-table__wrapper">
+      <mat-table class="lmat-elevation-z8" #table [dataSource]="dataSource" matSort #sort1="matSort" matSortActive="email"
+        matSortDirection="asc" matSortDisableClear>
+        <ng-container matColumnDef="select">
+          <mat-header-cell *matHeaderCellDef class="mat-column-checkbox">
+            <mat-checkbox (change)="$event ? masterToggle() : null" [checked]="selection.hasValue() && isAllSelected()"
+              [indeterminate]="selection.hasValue() && !isAllSelected()">
+            </mat-checkbox>
+          </mat-header-cell>
+          <mat-cell *matCellDef="let row" class="mat-column-checkbox">
+            <mat-checkbox (click)="$event.stopPropagation()" (change)="$event ? selection.toggle(row) : null"
+              [checked]="selection.isSelected(row)">
+            </mat-checkbox>
+          </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="email">
+          <mat-header-cell *matHeaderCellDef  mat-sort-header>Email</mat-header-cell>
+          <mat-cell *matCellDef="let user"  style="word-break: break-all;">{{ user.email }}</mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="role">
+          <mat-header-cell *matHeaderCellDef>Role</mat-header-cell>
+          <mat-cell *matCellDef="let user">
+            {{ user.role }}
+          </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="organization">
+          <mat-header-cell *matHeaderCellDef>Organization</mat-header-cell>
+          <mat-cell *matCellDef="let user">
+            {{ user.organization || "-" }}
+          </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="region">
+          <mat-header-cell *matHeaderCellDef>Region</mat-header-cell>
+          <mat-cell *matCellDef="let user"  style="word-break: break-all;">
+            {{ user.region || "-" }}
+          </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="market">
+          <mat-header-cell *matHeaderCellDef>Market</mat-header-cell>
+          <mat-cell *matCellDef="let user"  style="word-break: break-all;">
+            {{ user.markets || "-" }}
+          </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="locale">
+          <mat-header-cell *matHeaderCellDef>Locale</mat-header-cell>
+          <mat-cell *matCellDef="let user">
+            {{ user.locales || "-" }}
+          </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="addedOnDate">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>Added On Date</mat-header-cell>
+          <mat-cell *matCellDef="let user">
+            {{ user.createdAt | date: 'dd-MM-yyyy hh:mm:ss a' || "-" }}
+          </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="lastLoginDate">
+          <mat-header-cell *matHeaderCellDef>Last Login Date</mat-header-cell>
+          <mat-cell *matCellDef="let user">
+            {{ user.lastLoginDate | date: 'dd-MM-yyyy hh:mm:ss a' || "-" }}
+          </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="enabled">
+          <mat-header-cell *matHeaderCellDef>Status</mat-header-cell>
+          <mat-cell *matCellDef="let user">
+            <span class="kt-badge kt-badge--inline kt-badge--pill kt-badge--{{
+                getItemCssClassByStatus(user.enabled)
+              }} kt-badge--wide" style="width: 70px">{{ getItemStatusString(user.enabled) }}</span>
+          </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="actions">
+          <mat-header-cell *matHeaderCellDef>Actions</mat-header-cell>
+          <mat-cell *matCellDef="let user">
+            <button (click)="editUser(user)" mat-icon-button color="primary" matTooltip="Edit user">
+              <mat-icon>{{
+                !user.canDelete || !safeGet(permission,
+                'adminPanel.adminPanel:users.adminPanel:users:editUser') ? "visibility"
+                : "create"
+                }}</mat-icon>
+            </button>&nbsp;
+            <button mat-icon-button color="warn" matTooltip="Delete user" type="button" (click)="deleteUser(user)"
+              [disabled]="!user.canDelete || !safeGet(permission, 'adminPanel.adminPanel:users.adminPanel:users:deleteUser') || loggedinId === user._id">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </mat-cell>
+        </ng-container>
+
+        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+
+        <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
+      </mat-table>
+      <div class="mat-table__message" *ngIf="!dataSource.hasItems">
+        No records found
+      </div>
+      <!-- Message for empty data  -->
+      <div class="mat-table__message" *ngIf="dataSource.isPreloadTextViewed$ | async">
+        Please wait....
+      </div>
+    </div>
+
+    <!-- start: BOTTOM -->
+    <div class="mat-table__bottom" [hidden]="(dataSource?.paginatorTotal$ | async)<=0">
+      <!-- MATERIAL SPINNER | Url: 'https://material.angular.io/components/progress-spinner/overview' -->
+      <mat-spinner [diameter]="20" *ngIf="dataSource.loading$ | async"></mat-spinner>
+      <!-- MATERIAL PAGINATOR | Binded to dasources -->
+      <!-- See off.documentations 'https://material.angular.io/components/paginator/overview' -->
+      <mat-paginator [pageSize]="paginator.pageSize" [pageSizeOptions]="[3, 5, 10, 50]" [length]="dataSource.paginatorTotal$ | async"
+        [showFirstLastButtons]="true" (page)="onPageChange($event)"></mat-paginator>
+    </div>
+    <!-- end: BOTTOM -->
+  </kt-portlet-body>
+  <!-- end::Body -->
+</kt-portlet>
+<div class="loader-container" *ngIf = "this.isLoading">
+  <mat-card class="loader-container-card">
+    <mat-progress-spinner
+    color="primary"
+    diameter="40"
+    strokeWidth="1"
+    mode="indeterminate"
+    >
+    </mat-progress-spinner>
+  </mat-card>
+  </div>

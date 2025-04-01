@@ -1,0 +1,18 @@
+.btn-light-blue {
+  background-color: #00a6a6;
+  color: #fff;
+}
+
+.border-style {
+  width: 100%;
+  padding: 10px 15px;
+  &:focus-visible {
+    outline: none;
+  }
+}
+
+::ng-deep .mat-checkbox-checked.mat-accent .mat-checkbox-background{
+  background: #0ABB87!important;
+}
+
+

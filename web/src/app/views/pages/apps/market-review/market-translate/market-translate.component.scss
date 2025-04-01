@@ -1,0 +1,50 @@
+.code-section {
+    position: sticky;
+    top: 0;
+    background-color: white;
+    z-index: 1;
+    transition: padding 0.2s ease;
+  }
+
+.equal-padding {
+  padding-bottom: 20px;
+ }
+
+ .button-container {
+  display: flex;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.button-container button {
+  flex-basis: 45%;
+  margin-bottom: 10px;
+}
+
+.upload-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.button-content {
+  display: flex;
+  margin-left: -18px;
+  align-items: center;
+  font-size: x-large;
+}
+
+.button-text {
+  display: flex;
+  align-items: center;
+}
+
+.upload-icon {
+  width: 30px;
+  vertical-align: top;
+}
+
+.disabled {
+  opacity: 0.3; 
+  pointer-events: none; 
+}

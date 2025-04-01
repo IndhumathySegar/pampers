@@ -1,0 +1,80 @@
+<div class="kt-portlet" [ngClass]="{ 'kt-portlet--body-progress kt-portlet--body-progress-overlay' : isCrmLoading }">
+    <div class="kt-portlet__head kt-portlet__head__custom">
+        <div class="kt-portlet__head-label">
+            <h3 class="kt-portlet__head-title">Confirm</h3>
+        </div>
+    </div>
+
+    <div class="kt-form">
+        <div class="kt-portlet__body">
+            <div class="kt-portlet__body-progress">
+                <mat-spinner [diameter]="40"></mat-spinner>
+            </div>
+
+            <div 
+                class="mat-table__message" 
+                style="display: flex; margin: 1.5rem 0;" >
+             
+               <p *ngIf="!configData?.isReviewPage">Are you sure you want to upload</p>
+               <p *ngIf="configData?.isReviewPage && !configData?.isApprove">You are updating {{configData?.details?.length}} out of  {{configData?.totalCount}} available values. Do you want to continue?</p>
+               <p *ngIf="configData?.isApprove">You are approving the final version of {{configData?.details?.length}} out of  {{configData?.totalCount}} content values. This content published live after you approve it. Do you want to continue??</p>
+            </div>
+        </div>
+
+        <div class="kt-portlet__foot kt-portlet__no-border kt-portlet__foot--fit">
+            <div class="kt-form__actions kt-form__actions--solid">
+                <div class="row text-right">
+                    <div class="col-lg-12">
+                        <button 
+                            type="button" 
+                            mat-raised-button 
+                            (click)="onCancel(false)"
+                            matTooltip="Close" 
+                            *ngIf="!configData?.isReviewPage">
+                            Cancel
+                        </button>&nbsp;
+                        <button 
+                            type="button" 
+                            mat-raised-button 
+                            color="primary"
+                           
+                            (click)="updateCrmStatus()"
+                            [disabled]="isCrmLoading"
+                            matTooltip="Upload to Contentful" 
+                            *ngIf="!configData?.isReviewPage">
+                            Upload
+                        </button>
+
+                        <button 
+                        type="button" 
+                        mat-raised-button 
+                        color="primary"
+                      
+                        (click)="configData?.isApprove? approveCrmMessages() : updateCrmStatus()"
+                        [disabled]="isCrmLoading"
+                        matTooltip="Upload to Contentful" 
+                        *ngIf="configData?.isReviewPage ">
+                        YES
+                    </button>
+
+                
+
+                        <button 
+                        type="button" 
+                        class="ms-5"
+                        mat-raised-button 
+                        (click)="onCancel(false)"
+                        matTooltip="Close" 
+                         *ngIf="configData?.isReviewPage ">
+                        NO
+                    </button>&nbsp;
+                 
+
+                     
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+      </div>
+</div>

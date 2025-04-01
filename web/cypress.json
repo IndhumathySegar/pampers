@@ -1,0 +1,19 @@
+{
+  "baseUrl": "http://localhost:5200",
+  "projectId": "pampers-portal",
+  "integrationFolder": "cypress/tests",
+  "viewportHeight": 1000,
+  "viewportWidth": 1280,
+  "env": {
+    "apiUrl": "http://localhost:7071",
+    "ADMIN_USER": {
+      "email": "admin@demo.com",
+      "password": "demo"
+    },
+    "GUEST_USER": {
+      "email": "nilesh@aym.com",
+      "password": "Patel#123"
+    }
+  },
+  "supportFile": "cypress/support/index.ts"
+}

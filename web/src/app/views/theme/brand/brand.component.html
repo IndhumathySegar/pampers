@@ -1,0 +1,44 @@
+<!-- begin:: Brand -->
+<div
+  class="kt-header__brand kt-grid__item"
+  [ngClass]="htmlClassService.getClasses('brand', true)"
+  id="kt_header_brand"
+>
+  <div class="kt-header__brand-logo">
+    <a href="javascript:;" routerLink="/">
+      <img
+        alt="logo"
+        [attr.src]="headerLogo"
+        class="kt-header__brand-logo-default"
+      />
+      <img
+        alt="logo"
+        [attr.src]="headerStickyLogo"
+        class="kt-header__brand-logo-sticky"
+      />
+    </a>
+  </div>
+
+  <div class="kt-header__brand-nav">
+    <div ngbDropdown class="dropdown">
+      <span style="padding: 0 5px"></span>
+
+ 
+
+      <ng-container *ngIf="showContentManagement">
+        <span
+          class="menu-item"
+          (click)="onMenuSelection(1)"
+          ngbDropdownToggle
+          [ngClass]="{ 'active-menu': this.selectedMenuId === 1 }"
+          data-test="menu-operations"
+        >
+          Content Management
+        </span>
+      </ng-container>
+
+ 
+    </div>
+  </div>
+</div>
+<!-- end:: Brand -->

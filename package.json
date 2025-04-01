@@ -1,0 +1,14 @@
+{
+  "name": "pampers-portal-v2",
+  "license": "MIT",
+  "scripts": {
+    "start": "docker-compose up",
+    "build": "docker-compose  build",
+    "stop": "docker-compose down"
+  },
+  "dependencies": {
+    "ngx-quill": "^25.3.2",
+    "node-cron": "^2.0.3",
+    "pampers-portal-v2": "file:"
+  }
+}
